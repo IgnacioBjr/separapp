@@ -990,7 +990,7 @@
   $('ver-registro').addEventListener('click', function () {
     var reg = leerRegistro();
     var c = function (ev) { return reg.filter(function (f) { return f.evento === ev; }).length; };
-    $('reg-resumen').textContent = 'En este celular: ' + c('apertura') + ' aperturas, ' + c('calculo') + ' cálculos y ' + c('ver_recomendaciones') + ' vistas de recomendaciones.';
+    $('reg-resumen').textContent = 'En este celular: ' + plural(c('apertura'), 'apertura', 'aperturas') + ', ' + plural(c('calculo'), 'cálculo', 'cálculos') + ' y ' + plural(c('ver_recomendaciones'), 'vista', 'vistas') + ' de recomendaciones.';
     var filas = reg.slice(-25).reverse().map(function (f) {
       return '<tr><td class="num">' + esc(f.fecha) + '<br>' + esc(f.hora) + '</td><td>' + esc(f.evento) + '</td><td>' +
         (f.evento === 'calculo' ? esc(f.gasto) + ': ' + esc(fmt(f.reserva_por_mes || f.reserva_por_periodo || 0, f.moneda)) + ' por mes' : esc(f.gasto || '')) + '</td></tr>';
