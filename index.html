@@ -20,10 +20,11 @@
     --control: #d6d9dd;
     --text: #1b1d1f;
     --muted: #5c6064;
-    --primary: #1b1d1f;
-    --accent: #1d5fd6;
-    --accent-soft: #dcf1ff;
-    --accent-ink: #0a3a80;
+    --primary: #4f6b53;        /* verde salvia de la Guía 2 */
+    --primary-hover: #435c47;
+    --accent: #4f6b53;
+    --accent-soft: #e9f0e7;
+    --accent-ink: #2f4433;
     --positive: #2f7a45;
     --negative: #c41c29;
     --pill-positive-bg: #dcfae5; --pill-positive-ink: #04250e;
@@ -315,9 +316,9 @@
   @media (hover: hover) and (pointer: fine) {
     .icono-btn:hover { background: var(--raised); color: var(--text); }
     .chip span:hover { background: #e4e8ec; }
-    .chip input:checked + span:hover { background: #33363a; }
+    .chip input:checked + span:hover { background: var(--primary-hover); }
     .gasto-item:hover { background: var(--ground); }
-    .btn-principal:hover { background: #33363a; }
+    .btn-principal:hover { background: var(--primary-hover); }
     .btn-secundario:hover { background: #e4e8ec; }
     .sugerencias button:hover { background: #e4e8ec; }
     .volver:hover { color: var(--text); }
@@ -337,7 +338,7 @@
   <header class="barra">
     <div class="barra-fila">
       <div class="marca">
-        <svg viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="3" width="13" height="20" rx="5" fill="#1b1d1f"/><rect x="16" y="3" width="9" height="20" rx="4.5" fill="#1d5fd6"/></svg>
+        <svg viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="3" width="13" height="20" rx="5" fill="#2f4433"/><rect x="16" y="3" width="9" height="20" rx="4.5" fill="#7f9a80"/></svg>
         SeparApp
       </div>
       <div class="barra-acciones">
