@@ -65,7 +65,7 @@
     position: sticky; top: 0; z-index: 5; background: var(--ground);
     padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px;
   }
-  .barra-fila { max-width: 1080px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 44px; }
+  .barra-fila { max-width: 680px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 44px; }
   .marca { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
   .marca svg { width: 26px; height: 26px; display: block; }
   .barra-acciones { display: flex; gap: 4px; }
@@ -77,7 +77,7 @@
   .icono-btn:active { transform: scale(0.94); background: var(--raised); }
 
   /* ---------- Contenido y pantallas ---------- */
-  .contenido { max-width: 1080px; margin: 0 auto; padding: 8px 16px calc(120px + env(safe-area-inset-bottom, 0px)); }
+  .contenido { max-width: 680px; margin: 0 auto; padding: 8px 16px calc(120px + env(safe-area-inset-bottom, 0px)); }
   .pantalla { display: none; }
   .pantalla.activa { display: block; animation: entrar 280ms var(--ease-out) both; }
   @keyframes entrar { from { opacity: 0; transform: translateY(10px); } }
@@ -148,7 +148,7 @@
   .sobre-leyenda { margin: 10px 0 0; color: var(--muted); font-size: var(--fs-small); }
 
   .margen { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--rule); display: grid; gap: 10px; }
-  .margen-fila { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 15px; }
+  .margen-fila { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 12px; font-size: 15px; }
   .margen-fila span { color: var(--muted); }
   .margen-fila b { white-space: nowrap; font-weight: 600; }
   .pista { position: relative; height: 8px; border-radius: 999px; background: var(--raised); overflow: hidden; }
@@ -241,7 +241,7 @@
   .vista.on { display: block; animation: entrar 260ms var(--ease-out) both; }
 
   .control { margin-top: 18px; }
-  .control-fila { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 4px; font-size: 15px; color: var(--muted); }
+  .control-fila { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; font-size: 15px; color: var(--muted); }
   .control-fila b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
   input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 32px; background: transparent; cursor: pointer; }
   input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 999px; background: var(--raised); }
@@ -273,11 +273,11 @@
   /* ---------- Botón de abajo ---------- */
   .pie { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; pointer-events: none; }
   .pie-interno {
-    max-width: 1080px; margin: 0 auto; display: flex; gap: 10px; pointer-events: auto;
+    max-width: 680px; margin: 0 auto; display: flex; gap: 10px; pointer-events: auto;
     padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px)); background: var(--ground);
   }
   .btn {
-    flex: 1; border: 0; border-radius: 999px; min-height: 54px; padding: 0 24px; font-weight: 700; font-size: 16px; cursor: pointer;
+    flex: 1; border: 0; border-radius: 999px; min-height: 54px; padding: 0 24px; font-weight: 700; font-size: 16px; cursor: pointer; white-space: nowrap;
     transition: transform 140ms var(--ease-out), background-color 150ms ease;
   }
   .btn:active { transform: scale(0.97); }
@@ -335,10 +335,11 @@
   .parada .ficha { margin-top: 6px; box-shadow: 0 0 0 4px var(--ground); }
   .parada-tarjeta { flex: 1; min-width: 0; display: block; background: var(--surface); border-radius: 18px; padding: 14px 16px; transition: transform 140ms var(--ease-out); }
   .parada:active .parada-tarjeta { transform: scale(0.985); }
-  .parada-fila { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .parada-fila { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 10px; }
+  .parada-fila .gasto-cuota { margin-left: auto; }
   .parada-fila + .parada-fila { margin-top: 4px; }
   .parada-fecha { font-size: 13px; color: var(--muted); white-space: nowrap; }
-  .parada .gasto-meta { margin: 0; }
+  .parada .gasto-meta { margin: 0; white-space: nowrap; }
   .parada .gasto-cuota b { display: inline; font-size: 16px; }
   .parada .gasto-cuota small { margin-left: 3px; }
   .parada .avance { display: block; height: 6px; margin-top: 10px; border-radius: 999px; background: var(--raised); overflow: hidden; }
@@ -374,9 +375,12 @@
     :root { --fs-title: 32px; --fs-kpi: 44px; --pad: 28px; --gap: 20px; }
     .barra { padding-left: 32px; padding-right: 32px; }
     .contenido { padding-left: 32px; padding-right: 32px; padding-top: 16px; }
-    .inicio-grid { display: grid; grid-template-columns: 5fr 7fr; gap: 24px; align-items: start; }
+    .barra-fila, .contenido, .pie-interno { max-width: 1080px; }
+    /* minmax(0, …): que la tira de meses (que scrollea) no ensanche la columna. */
+    .inicio-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 24px; align-items: start; }
     .inicio-grid .lista-cab { margin-top: 0; }
-    .plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+    .plan-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+    .plan-grid > *, .inicio-grid > * { min-width: 0; }
     #p-perfil .seccion-perfil { grid-template-columns: 260px 1fr; gap: 24px; align-items: start; }
     #p-perfil .bajada { margin-bottom: 32px; }
     .pie-interno { justify-content: flex-end; padding-left: 32px; padding-right: 32px; padding-bottom: 20px; }
@@ -385,6 +389,23 @@
     .hoja { border-radius: 24px; transform: translateY(12px) scale(0.97); opacity: 0; transition: transform 180ms var(--ease-out), opacity 180ms ease; }
     .capa.ver .hoja { transform: none; opacity: 1; transition: transform 260ms var(--ease-out), opacity 200ms ease; }
     .asa { display: none; }
+  }
+
+  /* ---------- Celulares chicos ---------- */
+  @media (max-width: 374px) {
+    :root { --fs-title: 24px; --fs-kpi: 34px; --pad: 16px; }
+    .btn { padding: 0 16px; font-size: 15px; }
+    .alcancia { gap: 10px; height: 340px; }
+    .frasco { width: 124px; }
+    .frasco-tapa { left: 30px; right: 30px; }
+    .etq { gap: 6px; }
+    .etq b { font-size: 13px; white-space: nowrap; }
+    .etq span { font-size: 11px; white-space: nowrap; }
+    .etq.proxima { padding-left: 6px; }
+  }
+  /* Celular acostado: menos alto para la alcancía. */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .alcancia { height: 280px; }
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -756,10 +777,12 @@
     if (menosMovimiento || isNaN(desde) || desde === hasta) { el.textContent = fmt(hasta, mon); return; }
     var t0 = performance.now(), dur = 420;
     (function paso(t) {
-      var k = Math.min((t - t0) / dur, 1), e = 1 - Math.pow(1 - k, 4);
+      var k = Math.min(Math.max((t - t0) / dur, 0), 1), e = 1 - Math.pow(1 - k, 4);
       el.textContent = fmt(desde + (hasta - desde) * e, mon);
       if (k < 1 && el.getAttribute('data-valor') == hasta) requestAnimationFrame(paso);
     })(t0);
+    // Si la pestaña no dibuja cuadros (está en segundo plano), igual termina en el valor final.
+    setTimeout(function () { if (el.getAttribute('data-valor') == hasta) el.textContent = fmt(hasta, mon); }, dur + 80);
   }
 
   // ---------- Registro ----------
@@ -1008,7 +1031,7 @@
     $('s-meses').max = Math.max(36, m);
     $('s-meses').value = m; $('s-monto').value = 100;
     $('r-monto').removeAttribute('data-valor');
-    $('meses').innerHTML = '';
+    $('meses').innerHTML = ''; $('alcancia').innerHTML = '';
     elegirPanel('plan');
     pintar();
     ir('plan');
@@ -1033,7 +1056,7 @@
       cifra($('r-monto'), r.reserva, m);
       $('r-periodo').textContent = r.f.texto;
     }
-    pintarAlcancia(g);
+    pintarAlcancia(g, monto, meses);
     pintarMeses(g, r, m);
     pintarAporte(g);
     pintarConsejos(g, r);
@@ -1041,8 +1064,11 @@
   }
   // La alcancía: una capa por mes anotado (y una por lo que tenía al empezar), la ola arriba
   // y, punteado, lo que le toca separar ahora. Las etiquetas de cada capa van al costado.
-  function pintarAlcancia(g) {
-    var r = calcular(g), m = g.moneda, meta = g.monto, ALTO = 354;
+  // Sigue a "Probá otras opciones" (monto y meses); sólo se anima la primera vez que se abre.
+  function pintarAlcancia(g, monto, meses) {
+    var r = calcular(g, monto, meses), m = g.moneda, meta = monto || g.monto;
+    var ALTO = parseFloat(getComputedStyle($('alcancia')).height) - 26;
+    var anim = !$('alcancia').childElementCount, quieto = anim ? '' : 'animation:none;';
     var items = [];
     if (g.separado > 0) items.push({ mes: 'Al empezar', monto: g.separado });
     mesesAnotados(g).forEach(function (k) {
@@ -1053,7 +1079,7 @@
     items.forEach(function (it, i) {
       var h = Math.max(Math.min(it.monto * 100 / meta, 100 - acum), 0);
       if (it.monto > 0) {
-        capas += '<div class="capa-mes" style="bottom:' + acum.toFixed(2) + '%;height:' + h.toFixed(2) + '%;opacity:' + opac[k % 4] + ';animation-delay:' + (k * 140) + 'ms"></div>';
+        capas += '<div class="capa-mes" style="' + quieto + 'bottom:' + acum.toFixed(2) + '%;height:' + h.toFixed(2) + '%;opacity:' + opac[k % 4] + ';animation-delay:' + (k * 140) + 'ms"></div>';
         k++;
       }
       etqs.push({ y: (acum + h / 2) * ALTO / 100, html: '<span>' + esc(it.mes) + '</span><b>' + fmt(it.monto, m) + '</b>', clase: it.monto ? '' : ' nada', opac: it.monto ? opac[(k - 1) % 4] : 0.3 });
@@ -1075,7 +1101,7 @@
     var techo = ALTO - 46;
     for (var i = etqs.length - 1; i >= 0; i--) { if (etqs[i].y > techo) etqs[i].y = techo; techo = etqs[i].y - 36; }
     var etiquetas = etqs.map(function (e, i) {
-      return '<div class="etq' + e.clase + '" style="bottom:' + Math.max(e.y, 0).toFixed(0) + 'px;animation-delay:' + (300 + i * 90) + 'ms">' +
+      return '<div class="etq' + e.clase + '" style="' + quieto + 'bottom:' + Math.max(e.y, 0).toFixed(0) + 'px;animation-delay:' + (300 + i * 90) + 'ms">' +
         (e.clase === ' proxima' ? '' : '<i style="opacity:' + e.opac + '"></i>') + '<div>' + e.html + '</div></div>';
     }).join('');
     var vacia = !items.length ? '<div class="alcancia-vacia">Todavía está vacía. Cuando separes, anotalo y se va llenando.</div>' : '';
@@ -1264,6 +1290,14 @@
   });
   $('s-meses').addEventListener('input', pintar);
   $('s-monto').addEventListener('input', pintar);
+  // Si cambia el alto de la alcancía (girar el celular, achicar la ventana), se reacomodan las etiquetas.
+  var altoAlcancia = 0;
+  window.addEventListener('resize', function () {
+    var h = $('alcancia').offsetHeight;
+    if (pantalla !== 'plan' || !actual || h === altoAlcancia) return;
+    altoAlcancia = h;
+    pintarAlcancia(buscar(actual), Math.round(buscar(actual).monto * $('s-monto').value / 100), parseInt($('s-meses').value, 10));
+  });
 
   // ---------- Ver registro / CSV ----------
   $('ver-registro').addEventListener('click', function () {
