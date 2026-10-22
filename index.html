@@ -269,6 +269,16 @@
   .reco.cuidado .reco-tag { background: #fde68a; color: var(--pill-warning-ink); }
   .reco.cuidado h3, .reco.cuidado p { color: var(--pill-warning-ink); }
   .legal { font-size: 13px; color: var(--muted); margin: 12px 4px 0; }
+  .reco.arriesgada { box-shadow: inset 0 0 0 1.5px var(--control); }
+  .reco.arriesgada .reco-tag { background: var(--pill-warning-bg); color: var(--pill-warning-ink); }
+  .reco .reco-extra { margin: 14px 0 0; }
+  .tasas { margin-top: 10px; border-radius: var(--radius-inner); background: var(--ground); padding: 2px 12px; }
+  .tasas div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 8px 0; font-size: 14px; }
+  .tasas div + div { border-top: 1px solid var(--rule); }
+  .tasas span { min-width: 0; overflow-wrap: anywhere; }
+  .tasas b { white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .fuente { font-size: 11px; line-height: 1.45; color: var(--muted); margin: 12px 4px 0; }
+  .fuente a { color: inherit; text-underline-offset: 2px; }
 
   /* ---------- Botón de abajo ---------- */
   .pie { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; pointer-events: none; }
@@ -1241,33 +1251,151 @@
     return '<div class="reco ' + clase + '">' + (tag ? '<span class="reco-tag">' + tag + '</span>' : '') + '<h3>' + titulo + '</h3><p>' + texto + '</p>' +
       (items && items.length ? '<ul><li>' + items.join('</li><li>') + '</li></ul>' : '') + '</div>';
   }
+  // ---------- Datos del mercado (públicos, sin clave) ----------
+  // Tasas de plazo fijo (BCRA) y fondos comunes (CAFCI) vía ArgentinaDatos; dólar vía DolarApi.
+  // Se guardan 6 horas en el celular. Si no hay conexión, quedan las recomendaciones generales.
+  var CLAVE_MERCADO = 'separapp_mercado', mercado = leer(CLAVE_MERCADO, null), pidiendo = null, mercadoFallo = false;
+  var API = 'https://api.argentinadatos.com/v1/finanzas/';
+  function traer(url) { return fetch(url).then(function (x) { if (!x.ok) throw new Error(x.status); return x.json(); }); }
+  function fechaRuta(f) { return f.getFullYear() + '/' + ('0' + (f.getMonth() + 1)).slice(-2) + '/' + ('0' + f.getDate()).slice(-2); }
+  var DOLAR = /d[oó]lar|usd/i;
+  function sinClase(n) { return n.replace(/\s*-\s*clase.*$/i, ''); }
+  function rendimientos(tipo) {
+    return traer(API + 'fci/' + tipo + '/ultimo').then(function (hoy) {
+      var fecha = hoy.reduce(function (a, x) { return x.fecha > a ? x.fecha : a; }, '');
+      // Contra el día hábil anterior: las fotos viejas de la fuente vienen incompletas.
+      return traer(API + 'fci/' + tipo + '/penultimo').then(function (antes) {
+        var previo = {}, lista = [];
+        antes.forEach(function (x) { if (x.vcp) previo[x.fondo] = x; });
+        hoy.forEach(function (x) {
+          var a = previo[x.fondo], usd = DOLAR.test(x.fondo);
+          // Sólo fondos grandes (los chicos tienen saltos raros); en dólares el patrimonio viene en dólares.
+          if (!a || !x.vcp || !x.patrimonio || x.patrimonio < (usd ? 5e6 : 5e9)) return;
+          var dias = Math.round((new Date(x.fecha) - new Date(a.fecha)) / 864e5); if (dias < 1 || dias > 5) return;
+          var tna = (x.vcp / a.vcp - 1) * 365 / dias;
+          if (tna > 0 && tna < 0.8) lista.push({ fondo: x.fondo, horizonte: x.horizonte, tna: tna, patrimonio: x.patrimonio, usd: usd });
+        });
+        lista.sort(function (p, q) { return q.patrimonio - p.patrimonio; });
+        return { fecha: fecha, lista: lista };
+      });
+    });
+  }
+  function cargarMercado() {
+    if (mercado && Date.now() - mercado.cargado < 6 * 3600e3) return Promise.resolve(mercado);
+    if (pidiendo) return pidiendo;
+    pidiendo = Promise.all([
+      traer(API + 'tasas/plazoFijo'), rendimientos('mercadoDinero'), rendimientos('rentaFija'),
+      traer('https://dolarapi.com/v1/dolares').catch(function () { return []; })
+    ]).then(function (d) {
+      var dolar = {};
+      d[3].forEach(function (x) { dolar[x.casa] = x.venta; });
+      mercado = {
+        cargado: Date.now(), fecha: d[1].fecha, dolar: dolar, liquidez: d[1].lista, rentaFija: d[2].lista,
+        plazoFijo: d[0].filter(function (x) { return x.tnaClientes > 0; })
+          .map(function (x) { return { entidad: x.entidad, tna: x.tnaClientes }; })
+          .sort(function (p, q) { return q.tna - p.tna; })
+      };
+      guardar(CLAVE_MERCADO, mercado);
+      return mercado;
+    }).catch(function () { mercadoFallo = true; return mercado; }).then(function (m) { pidiendo = null; return m; });
+    return pidiendo;
+  }
+  function pct(x) { return (x * 100).toFixed(1).replace('.', ',') + '% anual'; }
+  // "BANCO DE LA NACION ARGENTINA" → "Banco de la Nación Argentina"; las siglas quedan en mayúscula.
+  var SIGLAS = { CMF: 1, BICA: 1, ICBC: 1, BBVA: 1, HSBC: 1, BACS: 1, CBA: 1, REBA: 1 }, ACENTOS = { nacion: 'nación', credito: 'crédito', compania: 'compañía', 'compañia': 'compañía' };
+  function nombreEntidad(t) {
+    return t.replace(/\s*S\.A\.U?\.?\s*$/i, '').split(/\s+/).map(function (w, i) {
+      if (SIGLAS[w]) return w;
+      var l = w.toLowerCase(); l = ACENTOS[l] || l;
+      return i && /^(de|la|del|y|el)$/.test(l) ? l : l.charAt(0).toUpperCase() + l.slice(1);
+    }).join(' ');
+  }
+  // Un fondo por familia (sin repetir clases A, B, C...), el más grande primero.
+  function deAUno(lista, cuantos, filtro) {
+    var vistos = {}, out = [];
+    lista.forEach(function (f) {
+      if (out.length < cuantos && !vistos[sinClase(f.fondo)] && filtro(f)) { vistos[sinClase(f.fondo)] = 1; out.push(f); }
+    });
+    return out;
+  }
+  // Cuánto ganaría al llegar si lo que ya tiene y cada cuota rinden a esa tasa (estimado con la tasa de hoy).
+  function ganancia(g, r, tna) {
+    var i = tna / 12, saldo = Math.min(tenes(g), r.monto), puesto = saldo;
+    for (var k = 0; k < r.cuotas; k++) { saldo = saldo * (1 + i) + r.porMes; puesto += r.porMes; }
+    return Math.max(saldo - puesto, 0);
+  }
+  function tasas(filas) {
+    return '<div class="tasas">' + filas.map(function (f) { return '<div><span>' + esc(f[0]) + '</span><b>' + f[1] + '</b></div>'; }).join('') + '</div>';
+  }
+  function filasFondos(lista) { return lista.map(function (f) { return [f.fondo.replace(/\s*-\s*clase/i, ' · clase'), pct(f.tna)]; }); }
+  function recoCon(clase, tag, titulo, texto, extra) {
+    return '<div class="reco ' + clase + '"><span class="reco-tag">' + tag + '</span><h3>' + titulo + '</h3><p>' + texto + '</p>' + extra + '</div>';
+  }
+
   function pintarRecos(g, r) {
-    var meses = r.meses, h = '';
-    if (g.moneda === 'USD') {
-      h += reco('principal', 'Recomendado para vos', 'Comprá dólares de a poco',
-        'Tu gasto es en dólares: cada vez que separes, pasá esa parte a dólares. Así no dependés del precio de un solo día.',
-        ['Guardalos en una cuenta en dólares de tu banco o billetera, apartados para "' + esc(g.gasto) + '".',
-         'Algunas cuentas en dólares también pagan un rendimiento: revisá si la tuya lo ofrece.']);
-    } else {
-      h += reco('principal', 'Recomendado para vos', 'Que no quede quieta: cuenta remunerada o fondo de liquidez',
-        'Guardala en ' + lugarApartado() + ' que rinda todos los días y que puedas sacar cuando la necesites. Así le ganás algo a la inflación sin arriesgar el gasto.',
-        ['Ejemplos: reservas que rinden en Mercado Pago, cuenta remunerada de Ualá o de tu banco, o un fondo común de inversión "money market".',
-         'Riesgo bajo y liquidez inmediata: ideal para plata que tiene fecha.']);
-      if (meses >= 6) {
-        if (perfil.riesgo === 'conservador') {
-          h += reco('', 'Si querés que rinda un poco más', 'Una parte a plazo fijo',
-            'Lo que no vas a tocar en los próximos meses lo podés poner a plazo fijo y renovarlo hasta la fecha del gasto.',
-            ['Plazo fijo tradicional: tasa fija, desde 30 días.', 'Plazo fijo UVA: ajusta por inflación; pide dejarlo más tiempo (mínimo 90 días).', 'Que el último vencimiento caiga antes de ' + mesDesdeHoy(meses) + '.']);
-        } else {
-          h += reco('', 'Si querés que rinda un poco más', 'Una parte en un fondo de renta fija de corto plazo',
-            'Como faltan ' + plural(meses, 'mes', 'meses') + ', podés poner una parte en un fondo de renta fija corto o en plazo fijo, y dejar el resto con liquidez.',
-            ['Puede variar un poco día a día, pero suele rendir más que una cuenta remunerada.', 'A medida que se acerque ' + mesDesdeHoy(meses) + ', pasá todo a la opción con liquidez inmediata.']);
-        }
-      }
+    var meses = r.meses, mon = g.moneda, usd = mon === 'USD', mk = mercado, h = '';
+    if (!mercadoFallo && (!mk || Date.now() - mk.cargado > 6 * 3600e3)) {
+      cargarMercado().then(function (m) { if ((m !== mk || mercadoFallo) && actual === g.id && pantalla === 'plan') pintarRecos(buscar(actual), calcular(buscar(actual), Math.round(buscar(actual).monto * $('s-monto').value / 100), parseInt($('s-meses').value, 10))); });
     }
-    h += reco('cuidado', 'Para esta plata, evitá', 'Acciones, cripto o inversiones que pueden bajar',
-      'Tu gasto tiene fecha. Si justo cuando lo necesitás el precio bajó, tendrías que vender perdiendo o postergar el gasto.' +
+    var estable = 'La más estable · para ' + (meses === 1 ? 'este mes' : 'los ' + meses + ' meses');
+    if (mk) {
+      // El fondo de la app que usa va primero (Mercado Pago y Ualá invierten la plata en uno).
+      var miFondo = perfil.app === 'Mercado Pago' ? /^mercado fondo/i : perfil.app === 'Ualá' ? /^ualintec ahorro pesos/i : null;
+      var liq = deAUno(mk.liquidez, 3, function (f) { return f.usd === usd; });
+      var propio = !usd && miFondo && mk.liquidez.filter(function (f) { return miFondo.test(f.fondo); })[0];
+      if (propio) liq = [propio].concat(liq.filter(function (f) { return sinClase(f.fondo) !== sinClase(propio.fondo); })).slice(0, 3);
+      var pf = mk.plazoFijo.slice(0, 3), nacion = mk.plazoFijo.filter(function (x) { return /naci[oó]n/i.test(x.entidad); })[0];
+      if (nacion && pf.indexOf(nacion) < 0) pf.push(nacion);
+      var arriesga = deAUno(mk.rentaFija, 2, function (f) { return f.usd === usd && f.horizonte === 'corto' && !/mix/i.test(f.fondo); });
+      var gana = function (tna) { return ' Al ritmo de hoy, ganarías unos <b>' + fmt(ganancia(g, r, tna), mon) + '</b> hasta ' + mesDesdeHoy(meses) + '.'; };
+
+      // 1. La más estable, para todo el plazo
+      if (usd) {
+        var mep = mk.dolar.bolsa, ofi = mk.dolar.oficial;
+        h += recoCon('principal', estable, 'Comprá dólares de a poco, cada mes',
+          'Tu gasto es en dólares y el monto es fijo: si cada mes pasás la cuota a dólares, no dependés del precio de un solo día.' +
+          (mep && r.porMes ? ' Hoy tu cuota de <b>' + fmt(r.porMes, 'USD') + '</b> son unos <b>' + fmt(r.porMes * mep, 'ARS') + '</b> al dólar MEP.' : ''),
+          tasas([mep ? ['Dólar MEP (bolsa)', fmt(mep, 'ARS')] : null, ofi ? ['Dólar oficial', fmt(ofi, 'ARS')] : null].filter(Boolean)) +
+          (liq.length ? '<p class="reco-extra">Para que esos dólares rindan algo sin cambiar de precio, un fondo money market en dólares:</p>' + tasas(filasFondos(liq)) : ''));
+      } else if (meses <= 2 || !pf.length) {
+        h += recoCon('principal', estable, 'Un fondo que rinde todos los días',
+          'Que la plata esté en ' + lugarApartado() + ' que rinda a diario y se pueda sacar al instante.' + (liq[0] && r.falta ? gana(liq[0].tna) : ''),
+          tasas(filasFondos(liq)));
+      } else {
+        h += recoCon('principal', estable, 'Plazo fijo a 30 días, renovándolo hasta ' + mesDesdeHoy(meses),
+          'La tasa queda fija cada mes y nunca baja. Lo que ya tenés va a plazo fijo y lo que separás cada mes se suma en la próxima renovación.' + (r.falta ? gana(pf[0].tna) : ''),
+          tasas(pf.map(function (x) { return [nombreEntidad(x.entidad), pct(x.tna)]; })) +
+          (liq.length ? '<p class="reco-extra">Mientras juntás para la próxima renovación, que espere en un fondo que rinde a diario' + (propio ? ' (el primero es el de ' + esc(perfil.app) + ')' : '') + ':</p>' + tasas(filasFondos(liq)) : ''));
+      }
+
+      // 2. La más arriesgada: sólo con tiempo suficiente
+      if (meses < 6) {
+        h += recoCon('arriesgada', 'Una más arriesgada', 'Con ' + plural(meses, 'mes', 'meses') + ' no te la recomendamos',
+          'Los fondos que rinden más pueden bajar algunas semanas. Con tan poco tiempo, si baja justo antes del gasto no llegás a recuperarlo.', '');
+      } else if (arriesga.length) {
+        h += recoCon('arriesgada', perfil.riesgo === 'conservador' ? 'Más arriesgada · sólo para comparar' : 'Más arriesgada · si te la querés jugar un poco',
+          'Un fondo de renta fija' + (usd ? ' en dólares' : '') + ' para una parte',
+          'Suele rendir más que la opción estable, pero su valor sube y baja: el número es lo que rindió el último día, y cambia mucho de un día a otro.' +
+          (perfil.riesgo === 'conservador' ? ' Elegiste que tu plata no baje nunca, así que para vos la de arriba es la indicada.'
+            : ' Poné ahí una parte, no todo, y 3 meses antes de ' + mesDesdeHoy(meses) + ' pasala a la opción estable.'),
+          tasas(filasFondos(arriesga)));
+      }
+    } else if (usd) {
+      // Sin datos del mercado (sin conexión): las recomendaciones generales.
+      h += reco('principal', estable, 'Comprá dólares de a poco',
+        'Tu gasto es en dólares: cada vez que separes, pasá esa parte a dólares. Así no dependés del precio de un solo día.',
+        ['Guardalos en una cuenta en dólares de tu banco o billetera, apartados para "' + esc(g.gasto) + '".']);
+    } else {
+      h += reco('principal', estable, 'Que no quede quieta: cuenta remunerada o fondo de liquidez',
+        'Guardala en ' + lugarApartado() + ' que rinda todos los días y que puedas sacar cuando la necesites.',
+        meses >= 3 ? ['Lo que no vas a tocar puede ir a plazo fijo a 30 días, renovándolo hasta ' + mesDesdeHoy(meses) + '.'] : []);
+    }
+    h += reco('cuidado', 'Para esta plata, evitá', 'Acciones, cripto o inversiones que pueden bajar mucho',
+      'Tu gasto tiene fecha. Si justo cuando lo necesitás el precio bajó, tendrías que vender perdiendo o postergar el gasto. Por eso no te mostramos acciones.' +
       (perfil.ahorro === 'invierto' ? ' Si ya invertís, mantené esta reserva separada de tu cartera.' : ''), []);
+    h += '<p class="fuente">' + (mk
+      ? 'Datos del ' + mk.fecha.split('-').reverse().join('/') + ': plazo fijo del BCRA y fondos de CAFCI, vía <a href="https://argentinadatos.com" target="_blank" rel="noopener">ArgentinaDatos</a>; dólar vía <a href="https://dolarapi.com" target="_blank" rel="noopener">DolarApi</a>. En los fondos, lo que rindieron el último día hábil pasado a anual. Las ganancias son estimadas con la tasa de hoy.'
+      : mercadoFallo ? 'Sin conexión: recomendaciones generales, sin las tasas del día.' : 'Cargando las tasas del día…') + '</p>';
     $('recos').innerHTML = h;
   }
 
