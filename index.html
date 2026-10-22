@@ -66,7 +66,9 @@
     padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px;
   }
   .barra-fila { max-width: 680px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 44px; }
-  .marca { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
+  .marca { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; letter-spacing: -0.02em; border: 0; background: transparent; padding: 0 8px 0 0; min-height: 44px; color: inherit; cursor: pointer; transition: transform 140ms var(--ease-out); }
+  .marca:active { transform: scale(0.97); }
+  .icono-btn[aria-current="page"] { color: var(--text); }
   .marca svg { width: 26px; height: 26px; display: block; }
   .barra-acciones { display: flex; gap: 4px; }
   .icono-btn {
@@ -443,11 +445,14 @@
 
   <header class="barra">
     <div class="barra-fila">
-      <div class="marca">
+      <button type="button" class="marca" id="ir-logo" aria-label="SeparApp, ir al inicio">
         <svg viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="3" width="13" height="20" rx="5" fill="#2f4433"/><rect x="16" y="3" width="9" height="20" rx="4.5" fill="#7f9a80"/></svg>
         SeparApp
-      </div>
+      </button>
       <div class="barra-acciones">
+        <button class="icono-btn" id="ir-inicio" aria-label="Inicio" title="Inicio" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg>
+        </button>
         <button class="icono-btn" id="ir-perfil" aria-label="Mi perfil" title="Mi perfil" hidden>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
         </button>
@@ -827,6 +832,8 @@
     pantalla = nombre;
     ['perfil', 'inicio', 'plan'].forEach(function (p) { $('p-' + p).classList.toggle('activa', p === nombre); });
     $('ir-perfil').hidden = !perfil || nombre === 'perfil';
+    $('ir-inicio').hidden = !perfil;
+    if (nombre === 'inicio') $('ir-inicio').setAttribute('aria-current', 'page'); else $('ir-inicio').removeAttribute('aria-current');
     var b1 = $('pie-1'), b2 = $('pie-2');
     if (nombre === 'perfil') { b1.textContent = perfil ? 'Guardar cambios' : 'Continuar'; b2.textContent = 'Cancelar'; b2.hidden = !perfil; }
     else if (nombre === 'inicio') { b1.textContent = 'Agregar gasto'; b2.hidden = true; }
@@ -843,6 +850,13 @@
   });
   $('pie-2').addEventListener('click', function () { ir('inicio'); pintarInicio(); });
   $('volver').addEventListener('click', function () { ir('inicio'); pintarInicio(); });
+  // El logo y la casita llevan al inicio (sin perfil todavía no hay inicio al que ir).
+  function irAlInicio() {
+    if (!perfil) return;
+    ir('inicio'); pintarInicio(); window.scrollTo(0, 0);
+  }
+  $('ir-logo').addEventListener('click', irAlInicio);
+  $('ir-inicio').addEventListener('click', irAlInicio);
   $('ir-perfil').addEventListener('click', function () { cargarPerfil(); ir('perfil'); });
 
   // ---------- Perfil ----------
