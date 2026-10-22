@@ -309,6 +309,66 @@
   .tabla th { text-align: left; font-weight: 500; color: var(--muted); padding: 8px 4px; font-size: 13px; }
   .tabla td { text-align: left; padding: 9px 4px; border-top: 1px solid var(--rule); vertical-align: top; }
 
+  /* ---------- v3.3: resumen de lo que cobrás + el camino ---------- */
+  body { transition: background-color 320ms ease; }
+  /* En el plan de un gasto, toda la pantalla toma el tono de ese gasto. */
+  body.en-plan { --ground: var(--t-bg); }
+  .resumen .total-cifra span { font-size: 15px; }
+  .cobro { position: relative; margin-top: 16px; }
+  .cobro-barra { display: flex; gap: 3px; height: 16px; border-radius: 999px; overflow: hidden; background: var(--raised); }
+  .cobro-barra i { display: block; height: 100%; background: var(--t-dato); transform-origin: left center; animation: crecer 900ms var(--ease-out) both; }
+  .cobro-raya { position: absolute; top: -5px; bottom: -5px; width: 2px; margin-left: -1px; border-radius: 2px; background: var(--text); }
+  .cobro-pie { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 13px; color: var(--muted); }
+  .cobro-pie span { display: inline-flex; align-items: center; gap: 6px; }
+  .cobro-pie i { width: 9px; height: 9px; border-radius: 3px; background: var(--t-dato); flex: none; }
+  .cobro-pie i.libre { background: var(--raised); box-shadow: inset 0 0 0 1px var(--control); }
+
+  .camino-cab { display: flex; justify-content: space-between; align-items: baseline; margin: 28px 0 0; }
+  .camino-cab h1 { font-size: 22px; margin: 0; }
+  .camino-cab span { color: var(--muted); font-size: var(--fs-small); }
+  .camino-bajada { margin: 2px 0 14px; color: var(--muted); font-size: 15px; }
+  .camino { position: relative; display: flex; flex-direction: column; gap: 14px; }
+  .camino .rail { position: absolute; left: 21px; top: 10px; bottom: 22px; width: 3px; border-radius: 3px; background: repeating-linear-gradient(to bottom, #c9d1cb 0 8px, transparent 8px 14px); }
+  .camino .viajero { position: absolute; left: 16px; top: 4px; width: 13px; height: 13px; border-radius: 999px; background: var(--primary); animation: viaja 6s var(--ease-in-out) infinite alternate; }
+  @keyframes viaja { to { top: calc(100% - 30px); } }
+  .parada { position: relative; display: flex; gap: 14px; align-items: flex-start; width: 100%; border: 0; padding: 0; background: transparent; text-align: left; cursor: pointer; animation: entrar 420ms var(--ease-out) both; }
+  .parada .ficha { margin-top: 6px; box-shadow: 0 0 0 4px var(--ground); }
+  .parada-tarjeta { flex: 1; min-width: 0; display: block; background: var(--surface); border-radius: 18px; padding: 14px 16px; transition: transform 140ms var(--ease-out); }
+  .parada:active .parada-tarjeta { transform: scale(0.985); }
+  .parada-fila { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .parada-fila + .parada-fila { margin-top: 4px; }
+  .parada-fecha { font-size: 13px; color: var(--muted); white-space: nowrap; }
+  .parada .gasto-meta { margin: 0; }
+  .parada .gasto-cuota b { display: inline; font-size: 16px; }
+  .parada .gasto-cuota small { margin-left: 3px; }
+  .parada .avance { display: block; height: 6px; margin-top: 10px; border-radius: 999px; background: var(--raised); overflow: hidden; }
+  .parada-aviso { display: block; margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--accent-ink); }
+  .parada-aviso.vencido { color: var(--pill-warning-ink); }
+
+  /* ---------- v3.3: la alcancía en capas ---------- */
+  .alcancia { display: flex; gap: 14px; height: 380px; margin: 4px 0 16px; }
+  .frasco { position: relative; width: 170px; flex: none; }
+  .frasco-tapa { position: absolute; left: 42px; right: 42px; top: 0; height: 24px; border-radius: 10px; background: var(--t-dato); opacity: .45; }
+  .frasco-vidrio { position: absolute; left: 0; right: 0; top: 20px; bottom: 0; border-radius: 40px 40px 50px 50px; background: rgba(255,255,255,.7); border: 3px solid #fff; overflow: hidden; }
+  .frasco-vidrio .brillo { position: absolute; left: 16px; top: 22px; width: 12px; height: 150px; border-radius: 999px; background: rgba(255,255,255,.55); }
+  .capa-mes { position: absolute; left: 0; right: 0; background: var(--t-dato); border-top: 2px solid rgba(255,255,255,.85); transform-origin: bottom center; animation: llenar 600ms var(--ease-out) both; }
+  @keyframes llenar { from { transform: scaleY(0); } }
+  .ola-caja { position: absolute; left: 0; right: 0; height: 0; }
+  .ola-caja i { position: absolute; top: -6px; left: 0; width: 200%; height: 7px; background: radial-gradient(ellipse 13px 6px at 50% 100%, var(--t-dato) 98%, transparent 100%) 0 0 / 26px 7px repeat-x; animation: ola 6s linear infinite; }
+  @keyframes ola { to { transform: translateX(-50%); } }
+  .capa-proxima { position: absolute; left: 6px; right: 6px; border: 2.5px dashed var(--t-dato); border-bottom: 0; border-radius: 6px 6px 0 0; background: repeating-linear-gradient(135deg, transparent 0 8px, rgba(255,255,255,.6) 8px 12px); animation: titila 2.4s ease-in-out infinite; }
+  @keyframes titila { 50% { opacity: .55; } }
+  .etiquetas { position: relative; flex: 1; min-width: 0; color: var(--t-ink); }
+  .etiquetas .meta { position: absolute; top: 14px; left: 0; font-size: 12px; font-weight: 700; opacity: .75; }
+  .etq { position: absolute; left: 0; right: 0; display: flex; gap: 8px; align-items: center; animation: entrar 420ms var(--ease-out) both; }
+  .etq i { width: 14px; height: 3px; border-radius: 3px; flex: none; background: var(--t-dato); }
+  .etq span { display: block; font-size: 12px; opacity: .8; }
+  .etq b { display: block; font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .etq.nada { opacity: .6; }
+  .etq.proxima { border-left: 3px dashed var(--t-dato); padding-left: 8px; }
+  .etq.proxima span { font-weight: 700; opacity: 1; }
+  .alcancia-vacia { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 0 18px; font-size: 13px; color: var(--t-ink); font-weight: 600; }
+
   /* ---------- Desde tablet / computadora ---------- */
   @media (min-width: 900px) {
     :root { --fs-title: 32px; --fs-kpi: 44px; --pad: 28px; --gap: 20px; }
@@ -344,6 +404,7 @@
     *, *::before, *::after { animation-duration: 1ms !important; animation-delay: 0ms !important; }
     .hoja, .capa.ver .hoja { transition: opacity 150ms ease !important; transform: none !important; }
     .pista i, .barra-meta i, .segmento .indicador { transition-duration: 1ms !important; }
+    .camino .viajero, .ola-caja i, .capa-proxima { animation: none !important; }
   }
 </style>
 </head>
@@ -448,24 +509,25 @@
 
     <!-- ===== Inicio ===== -->
     <section class="pantalla" id="p-inicio" aria-labelledby="t2">
-      <div class="titulo-fila">
-        <h1 id="t2">Tus gastos previstos</h1>
-        <p id="hallazgo"></p>
-      </div>
-
       <div class="inicio-grid">
         <div>
-          <div class="panel" id="total" hidden>
-            <p class="total-etq">Para llegar a todos, separá</p>
-            <p class="total-cifra"><b id="total-monto">$0</b><span>por mes</span></p>
-            <p class="total-extra" id="total-extra"></p>
-            <div class="sobre" id="sobre" aria-hidden="true"></div>
-            <p class="sobre-leyenda" id="sobre-leyenda"></p>
+          <div class="panel resumen" id="total" hidden>
+            <p class="total-etq" id="res-etq">Para llegar a todos, separá</p>
+            <p class="total-cifra"><b id="total-monto">$0</b><span id="res-sub"></span></p>
+            <div class="cobro" aria-hidden="true">
+              <div class="cobro-barra" id="sobre"></div>
+              <i class="cobro-raya" id="raya" hidden></i>
+            </div>
+            <div class="cobro-pie" id="sobre-leyenda"></div>
             <div class="margen" id="margen" hidden></div>
           </div>
         </div>
         <div>
-          <div class="lista-cab" id="lista-cab" hidden><h2>Cuánto por cada uno</h2><span id="lista-cant"></span></div>
+          <div class="camino-cab">
+            <h1 id="t2">Tu camino</h1>
+            <span id="lista-cant"></span>
+          </div>
+          <p class="camino-bajada" id="hallazgo"></p>
           <div id="lista"></div>
           <p class="aliento">Lo que separás hoy es la tranquilidad de mañana.</p>
         </div>
@@ -482,10 +544,12 @@
 
       <div class="plan-grid">
         <div>
+          <!-- La alcancía: una capa por cada mes que separó y, punteado, lo que le toca ahora. -->
+          <div class="alcancia" id="alcancia" aria-label="Alcancía del gasto" role="img"></div>
           <div class="panel" aria-live="polite">
             <p class="cifra-etq" id="r-etiqueta">Separá</p>
             <p class="cifra"><b id="r-monto">$0</b><span id="r-periodo">por mes</span></p>
-            <div class="barra-meta"><i id="r-avance"></i></div>
+            <div class="barra-meta" hidden><i id="r-avance"></i></div>
             <div class="tres">
               <div><span>Ya tenés</span><b id="r-tenes">$0</b></div>
               <div><span>Te falta</span><b id="r-falta">$0</b></div>
@@ -734,6 +798,9 @@
     if (nombre === 'perfil') { b1.textContent = perfil ? 'Guardar cambios' : 'Continuar'; b2.textContent = 'Cancelar'; b2.hidden = !perfil; }
     else if (nombre === 'inicio') { b1.textContent = 'Agregar gasto'; b2.hidden = true; }
     else { b1.textContent = 'Editar gasto'; b2.textContent = 'Volver'; b2.hidden = false; }
+    // En el plan, toda la pantalla toma el tono del gasto.
+    var gp = nombre === 'plan' && actual ? buscar(actual) : null;
+    document.body.className = gp ? 'en-plan t' + gp.tono : '';
     window.scrollTo(0, 0);
   }
   $('pie-1').addEventListener('click', function () {
@@ -782,56 +849,65 @@
   // ---------- Inicio ----------
   function pintarInicio() {
     var hay = gastos.length > 0;
-    $('total').hidden = !hay; $('lista-cab').hidden = !hay;
+    $('total').hidden = !hay;
     if (!hay) {
+      $('lista-cant').textContent = '';
       $('hallazgo').textContent = 'Anotá los gastos grandes que ves venir y te decimos cuánto separar.';
       $('lista').innerHTML = '<div class="panel vacio"><b>Todavía no anotaste ningún gasto</b><p>Por ejemplo, un viaje en enero o una mudanza. Con el monto y el mes alcanza: tocá "Agregar gasto".</p></div>';
       return;
     }
     var orden = gastos.slice().sort(function (a, b) { return mesesHasta(a.mes) - mesesHasta(b.mes); });
     var tot = { ARS: 0, USD: 0 }, h = '';
+    // El camino: una parada por gasto, del más cercano al más lejano.
     orden.forEach(function (g, i) {
-      var r = calcular(g), m = mesesHasta(g.mes);
+      var r = calcular(g), m = mesesHasta(g.mes), pct = Math.min(100, Math.round(tenes(g) * 100 / g.monto));
       tot[g.moneda] += r.porMes;
-      var cuando = m <= 0 ? '<span class="vencido">ya llegó la fecha</span>' : 'en ' + plural(m, 'mes', 'meses');
       var p = pendiente(g);
-      if (p && r.falta) cuando += ' · <span class="anotar">anotá ' + soloMes(p) + '</span>';
-      h += '<button type="button" class="gasto-item t' + g.tono + '" data-id="' + g.id + '" style="animation-delay:' + (Math.min(i, 6) * 45) + 'ms">' +
+      var aviso = m <= 0 ? '<span class="parada-aviso vencido">Ya llegó la fecha</span>' : (p && r.falta ? '<span class="parada-aviso">Anotá lo de ' + soloMes(p) + '</span>' : '');
+      var cuota = !r.falta ? '<b class="listo">Listo</b>' : m <= 0 ? '<b>' + fmt(r.falta, g.moneda) + '</b><small>te falta</small>' : '<b>' + fmt(r.porMes, g.moneda) + '</b><small>/mes</small>';
+      h += '<button type="button" class="parada t' + g.tono + '" data-id="' + g.id + '" style="animation-delay:' + (120 + Math.min(i, 6) * 110) + 'ms">' +
         '<span class="ficha" aria-hidden="true">' + inicial(g.gasto) + '</span>' +
-        '<span class="gasto-texto"><span class="gasto-nombre">' + esc(g.gasto) + '</span><span class="gasto-meta num">' + fmt(g.monto, g.moneda) + ' · ' + nombreMes(g.mes) + '<br>' + cuando + '</span></span>' +
-        '<span class="gasto-cuota">' + (!r.falta ? '<b class="listo">Listo</b><small>ya lo tenés</small>' : m <= 0 ? '<b>' + fmt(r.falta, g.moneda) + '</b><small>te falta</small>' : '<b>' + fmt(r.porMes, g.moneda) + '</b><small>por mes</small>') + '</span>' +
-        '<span class="avance" aria-hidden="true"><i style="width:' + Math.min(100, Math.round(tenes(g) * 100 / g.monto)) + '%"></i></span></button>';
+        '<span class="parada-tarjeta">' +
+          '<span class="parada-fila"><span class="gasto-nombre">' + esc(g.gasto) + '</span><span class="parada-fecha">' + nombreMes(g.mes) + '</span></span>' +
+          '<span class="parada-fila"><span class="gasto-meta num">' + fmt(Math.min(tenes(g), g.monto), g.moneda) + ' de ' + fmt(g.monto, g.moneda) + '</span><span class="gasto-cuota">' + cuota + '</span></span>' +
+          '<span class="avance" aria-hidden="true"><i style="width:' + Math.max(pct, 2) + '%"></i></span>' + aviso +
+        '</span></button>';
     });
-    $('lista').innerHTML = '<div class="lista">' + h + '</div>';
-    $('lista-cant').textContent = plural(gastos.length, 'gasto', 'gastos');
-    cada('.gasto-item', function (b) { b.addEventListener('click', function () { abrirPlan(b.getAttribute('data-id')); }); });
+    $('lista').innerHTML = '<div class="camino"><span class="rail" aria-hidden="true"></span><span class="viajero" aria-hidden="true"></span>' + h + '</div>';
+    $('lista-cant').textContent = 'Tocá un gasto';
+    cada('.parada', function (b) { b.addEventListener('click', function () { abrirPlan(b.getAttribute('data-id')); }); });
 
     var prox = orden[0], mp = mesesHasta(prox.mes);
-    $('hallazgo').textContent = mp <= 0 ? 'La fecha de ' + prox.gasto + ' ya llegó: revisá si lo pagaste.' : 'El más cercano es ' + prox.gasto + ', en ' + nombreMes(prox.mes).split(' ')[0] + ' (' + plural(mp, 'mes', 'meses') + ').';
+    $('hallazgo').textContent = mp <= 0 ? 'La fecha de ' + prox.gasto + ' ya llegó: revisá si lo pagaste.' : 'El más cercano es ' + prox.gasto + ', en ' + soloMes(prox.mes) + ' (' + plural(mp, 'mes', 'meses') + ').';
 
+    // El resumen: cuánto de lo que cobrás va a cada gasto este mes.
     var soloUsd = !tot.ARS && tot.USD, monTotal = soloUsd ? 'USD' : 'ARS', valTotal = soloUsd ? tot.USD : tot.ARS;
+    var ingreso = !soloUsd && perfil.ingreso ? perfil.ingreso : 0, cap = !soloUsd && perfil.capacidad ? perfil.capacidad : 0;
+    $('res-etq').textContent = ingreso ? 'De lo que cobrás este mes (' + fmt(ingreso) + '), separá' : 'Este mes, para llegar a todo, separá';
     cifra($('total-monto'), valTotal, monTotal);
-    var extra = [];
-    if (tot.ARS && tot.USD) extra.push('y <b>' + fmt(tot.USD, 'USD') + '</b> por mes para los gastos en dólares');
-    if (perfil.ingresos === 'quincenal' || perfil.ingresos === 'semanal') extra.push('o <b>' + fmt(Math.ceil(valTotal / FREC[perfil.ingresos].porMes / (soloUsd ? 1 : 100)) * (soloUsd ? 1 : 100), monTotal) + '</b> ' + FREC[perfil.ingresos].texto);
-    if (perfil.ingreso && tot.ARS) extra.push('Es el <b>' + Math.round(tot.ARS * 100 / perfil.ingreso) + '%</b> de lo que ganás');
-    $('total-extra').innerHTML = extra.join('<br>');
+    var sub = [];
+    if (ingreso && tot.ARS) sub.push(Math.round(tot.ARS * 100 / ingreso) + '%');
+    if (tot.ARS && tot.USD) sub.push('+ ' + fmt(tot.USD, 'USD'));
+    if (!sub.length) sub.push('por mes');
+    $('res-sub').textContent = sub.join(' · ');
 
-    // El sobre del mes: un tramo por gasto de la moneda del total, en el tono de su ficha.
+    var escala = ingreso || Math.max(cap, valTotal) || 1;
     var tramos = orden.filter(function (g) { return g.moneda === monTotal; }).map(function (g) { return { g: g, v: calcular(g).porMes }; }).filter(function (t) { return t.v > 0; });
-    $('sobre').innerHTML = tramos.map(function (t, i) { return '<i class="t' + t.g.tono + '" style="flex:' + t.v + ' 1 0;animation-delay:' + (120 + i * 70) + 'ms"></i>'; }).join('');
-    $('sobre').hidden = !tramos.length;
-    $('sobre-leyenda').textContent = 'Cada color es un gasto de la lista.';
-    $('sobre-leyenda').hidden = tramos.length < 2;
+    $('sobre').innerHTML = tramos.map(function (t, i) { return '<i class="t' + t.g.tono + '" style="flex:0 0 ' + Math.min(t.v * 100 / escala, 100).toFixed(2) + '%;animation-delay:' + (120 + i * 120) + 'ms"></i>'; }).join('');
+    var raya = $('raya');
+    raya.hidden = !cap;
+    if (cap) raya.style.left = Math.min(cap * 100 / escala, 100).toFixed(2) + '%';
+    var pie = tramos.map(function (t) { return '<span><i class="t' + t.g.tono + '"></i>' + esc(t.g.gasto) + ' ' + fmt(t.v, monTotal) + '</span>'; });
+    if (ingreso) pie.push('<span><i class="libre"></i>Para gastar ' + fmt(Math.max(ingreso - tot.ARS, 0)) + '</span>');
+    $('sobre-leyenda').innerHTML = pie.join('');
 
     var mg = $('margen');
-    if (perfil.capacidad && tot.ARS) {
-      var cap = perfil.capacidad, pasa = tot.ARS > cap, escala = Math.max(cap, tot.ARS);
+    if (cap && tot.ARS) {
+      var pasa = tot.ARS > cap;
       mg.hidden = false;
-      mg.innerHTML = '<div class="margen-fila"><span>Dijiste que podés separar</span><b class="num">' + fmt(cap) + ' por mes</b></div>' +
-        '<div class="pista"><i class="' + (pasa ? 'pasa' : '') + '" style="transform:scaleX(' + (Math.min(tot.ARS, escala) / escala).toFixed(3) + ')"></i></div>' +
+      mg.innerHTML = '<div class="margen-fila"><span>La raya es lo que podés separar</span><b class="num">' + fmt(cap) + ' por mes</b></div>' +
         (pasa ? '<span class="estado mas">Te pasás por ' + fmt(tot.ARS - cap) + ' por mes</span>'
-              : '<span class="estado ok">' + ICONOS.check + (cap > tot.ARS ? 'Entra, y te quedan ' + fmt(cap - tot.ARS) + ' libres' : 'Entra justo') + '</span>') +
+              : '<span class="estado ok">' + ICONOS.check + (cap > tot.ARS ? 'Entra, y te quedan ' + fmt(cap - tot.ARS) + ' de margen' : 'Entra justo') + '</span>') +
         (tot.USD ? '<span class="ayuda" style="margin:0">Sin contar los gastos en dólares.</span>' : '');
     } else { mg.hidden = true; }
   }
@@ -957,11 +1033,60 @@
       cifra($('r-monto'), r.reserva, m);
       $('r-periodo').textContent = r.f.texto;
     }
+    pintarAlcancia(g);
     pintarMeses(g, r, m);
     pintarAporte(g);
     pintarConsejos(g, r);
     pintarRecos(g, r);
   }
+  // La alcancía: una capa por mes anotado (y una por lo que tenía al empezar), la ola arriba
+  // y, punteado, lo que le toca separar ahora. Las etiquetas de cada capa van al costado.
+  function pintarAlcancia(g) {
+    var r = calcular(g), m = g.moneda, meta = g.monto, ALTO = 354;
+    var items = [];
+    if (g.separado > 0) items.push({ mes: 'Al empezar', monto: g.separado });
+    mesesAnotados(g).forEach(function (k) {
+      var a = g.aportes[k];
+      items.push({ mes: soloMes(k).charAt(0).toUpperCase() + soloMes(k).slice(1) + (a.monto ? '' : ' · no pudo'), monto: a.monto });
+    });
+    var opac = [1, 0.78, 0.6, 0.45], acum = 0, k = 0, capas = '', etqs = [];
+    items.forEach(function (it, i) {
+      var h = Math.max(Math.min(it.monto * 100 / meta, 100 - acum), 0);
+      if (it.monto > 0) {
+        capas += '<div class="capa-mes" style="bottom:' + acum.toFixed(2) + '%;height:' + h.toFixed(2) + '%;opacity:' + opac[k % 4] + ';animation-delay:' + (k * 140) + 'ms"></div>';
+        k++;
+      }
+      etqs.push({ y: (acum + h / 2) * ALTO / 100, html: '<span>' + esc(it.mes) + '</span><b>' + fmt(it.monto, m) + '</b>', clase: it.monto ? '' : ' nada', opac: it.monto ? opac[(k - 1) % 4] : 0.3 });
+      acum += h;
+    });
+    var pct = Math.round(Math.min(tenes(g), meta) * 100 / meta), prox = '';
+    if (r.falta > 0) {
+      var hp = Math.min(r.porMes, r.falta) * 100 / meta;
+      var mesProx = anotoEsteMes(g) ? soloMes(claveMes(1)) : soloMes(pendiente(g) || claveMes(0));
+      var pctProx = Math.round(Math.min(tenes(g) + r.porMes, meta) * 100 / meta);
+      prox = '<div class="capa-proxima" style="bottom:' + acum.toFixed(2) + '%;height:' + hp.toFixed(2) + '%"></div>';
+      var titulo = mesesHasta(g.mes) <= 0 ? 'Te falta' : mesProx.charAt(0).toUpperCase() + mesProx.slice(1) + ', recomendado';
+      etqs.push({ y: (acum + hp / 2) * ALTO / 100, html: '<span>' + titulo + '</span><b>+' + fmt(r.porMes, m) + ' → ' + pctProx + '%</b>', clase: ' proxima' });
+    }
+    // Con muchos meses, sólo las últimas etiquetas; y que no se pisen entre sí ni con la meta.
+    if (etqs.length > 6) etqs = etqs.slice(-6);
+    var piso = -999;
+    etqs.forEach(function (e) { e.y = Math.max(e.y - 14, piso + 36, 0); piso = e.y; });
+    var techo = ALTO - 46;
+    for (var i = etqs.length - 1; i >= 0; i--) { if (etqs[i].y > techo) etqs[i].y = techo; techo = etqs[i].y - 36; }
+    var etiquetas = etqs.map(function (e, i) {
+      return '<div class="etq' + e.clase + '" style="bottom:' + Math.max(e.y, 0).toFixed(0) + 'px;animation-delay:' + (300 + i * 90) + 'ms">' +
+        (e.clase === ' proxima' ? '' : '<i style="opacity:' + e.opac + '"></i>') + '<div>' + e.html + '</div></div>';
+    }).join('');
+    var vacia = !items.length ? '<div class="alcancia-vacia">Todavía está vacía. Cuando separes, anotalo y se va llenando.</div>' : '';
+    $('alcancia').setAttribute('aria-label', 'Alcancía de ' + g.gasto + ': ' + pct + '% de la meta');
+    $('alcancia').innerHTML =
+      '<div class="frasco"><div class="frasco-tapa"></div><div class="frasco-vidrio">' + capas + prox +
+        '<div class="ola-caja" style="bottom:' + acum.toFixed(2) + '%"' + (acum > 0 ? '' : ' hidden') + '><i></i></div>' +
+        '<span class="brillo"></span>' + vacia + '</div></div>' +
+      '<div class="etiquetas"><div class="meta">Meta ' + fmt(meta, m) + ' · ' + pct + '%</div>' + etiquetas + '</div>';
+  }
+
   // Primero los meses ya anotados; después un casillero por cada mes que queda
   // (si son muchos, los primeros, un salto y el último) y al final el mes del gasto.
   function pintarMeses(g, r, m) {
