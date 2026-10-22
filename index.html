@@ -174,6 +174,7 @@
   .gasto-nombre { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-weight: 600; font-size: 16px; line-height: 1.3; overflow: hidden; overflow-wrap: anywhere; }
   .gasto-meta { display: block; font-size: var(--fs-small); color: var(--muted); margin-top: 2px; line-height: 1.4; }
   .gasto-meta .vencido { color: var(--pill-warning-ink); font-weight: 600; }
+  .gasto-meta .anotar { color: var(--accent-ink); font-weight: 600; }
   .gasto-cuota { text-align: right; white-space: nowrap; }
   .gasto-cuota b { display: block; font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
   .gasto-cuota small { font-size: 13px; color: var(--muted); }
@@ -215,8 +216,21 @@
   .mes { flex: none; min-width: 78px; scroll-snap-align: start; border-radius: var(--radius-inner); padding: 10px 10px 9px; background: var(--t-bg); color: var(--t-ink); animation: entrar 320ms var(--ease-out) both; }
   .mes span { display: block; font-size: 13px; }
   .mes b { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .mes.meta { background: var(--t-dato); color: #fff; }
+  .mes.meta { background: transparent; box-shadow: inset 0 0 0 1.5px var(--t-dato); }
   .mes.salto { background: transparent; color: var(--muted); display: grid; place-items: center; min-width: 28px; padding: 0; }
+  /* Meses ya anotados: relleno si llegó a lo previsto, ámbar si separó menos, gris si no pudo. */
+  .mes.hecho { background: var(--t-dato); color: #fff; }
+  .mes.corto { background: var(--pill-warning-bg); color: var(--pill-warning-ink); }
+  .mes.nada { background: var(--raised); color: var(--muted); }
+
+  /* Anotar lo que separó cada mes */
+  .aporte h2 { margin-bottom: 4px; }
+  .aporte > p { margin: 0; color: var(--muted); font-size: 15px; }
+  .aporte .estado { margin-top: 10px; }
+  .aporte-btns { display: flex; gap: 10px; margin-top: 16px; }
+  .aporte-btns .btn { flex: 1; min-height: 48px; padding: 0 16px; font-size: 15px; }
+  .aporte-btns .btn-secundario { background: var(--raised); }
+  .aporte .link-btn { margin-top: 6px; }
 
   .segmento { position: relative; display: grid; grid-template-columns: 1fr 1fr; background: var(--raised); border-radius: 999px; padding: 4px; margin: 0 0 var(--gap); }
   .segmento .indicador { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 999px; background: var(--surface); transition: transform 280ms var(--ease-in-out); }
@@ -480,6 +494,7 @@
             <div class="meses-cab"><h2>Mes a mes</h2><span id="meses-total"></span></div>
             <div class="meses" id="meses"></div>
           </div>
+          <div class="panel aporte" id="aporte-panel" aria-live="polite" hidden></div>
         </div>
 
         <div>
@@ -559,8 +574,9 @@
     </div>
 
     <div class="campo">
-      <label for="separado">¿Ya tenés algo separado para esto? <small>· opcional</small></label>
+      <label for="separado" id="l-separado">¿Ya tenés algo separado para esto? <small>· opcional</small></label>
       <div class="entrada"><span class="prefijo pref-moneda">$</span><input id="separado" type="text" inputmode="numeric" placeholder="0" autocomplete="off" enterkeyhint="done"></div>
+      <p class="ayuda" id="ayuda-separado" hidden></p>
     </div>
 
     <div class="hoja-btns">
@@ -568,6 +584,26 @@
       <button class="btn btn-principal" id="guardar-gasto">Guardar gasto</button>
     </div>
     <p style="margin:12px 0 0"><button type="button" class="link-btn peligro" id="borrar-gasto" hidden>Borrar este gasto</button></p>
+  </div>
+</div>
+
+<!-- Anotar lo que separó en un mes -->
+<div class="capa" id="capa-aporte" role="dialog" aria-modal="true" aria-labelledby="t-aporte">
+  <div class="hoja">
+    <div class="asa" aria-hidden="true"></div>
+    <h2 id="t-aporte">¿Cuánto separaste?</h2>
+    <div class="campo">
+      <label for="aporte" id="aporte-sub"></label>
+      <div class="entrada"><span class="prefijo" id="pref-aporte">$</span><input id="aporte" type="text" inputmode="numeric" placeholder="0" autocomplete="off" enterkeyhint="done"></div>
+      <div class="sugerencias" id="aporte-sugerencias"></div>
+      <p class="ayuda">Anotá lo que separaste de verdad, sea más o menos. Con eso recalculamos los meses que quedan.</p>
+      <div class="error" id="e-aporte">Poné cuánto separaste. Si no pudiste, poné 0.</div>
+    </div>
+    <div class="hoja-btns">
+      <button class="btn btn-secundario" id="cancelar-aporte">Cancelar</button>
+      <button class="btn btn-principal" id="guardar-aporte">Guardar</button>
+    </div>
+    <p style="margin:12px 0 0"><button type="button" class="link-btn peligro" id="borrar-aporte" hidden>Borrar lo anotado</button></p>
   </div>
 </div>
 
@@ -615,8 +651,13 @@
   if (!sesion) { sesion = nuevoId(); guardar(CLAVE_ID, sesion); }
   var perfil = leer(CLAVE_PERFIL, null);
   var gastos = leer(CLAVE_GASTOS, []);
-  gastos.forEach(function (g, i) { if (g.tono == null) g.tono = i % TONOS; });
-  var actual = null, editando = null, moneda = 'ARS', pantalla = '', recosVistas = {};
+  gastos.forEach(function (g, i) {
+    if (g.tono == null) g.tono = i % TONOS;
+    // Lo que separó cada mes, por clave de mes: { monto, sugerido }. "creado" marca desde qué mes se pregunta.
+    if (!g.aportes) g.aportes = {};
+    if (!g.creado) g.creado = claveMes(0);
+  });
+  var actual = null, editando = null, moneda = 'ARS', pantalla = '', recosVistas = {}, aporteMes = null, aporteSug = 0;
 
   function fmt(n, mon) { return (mon === 'USD' ? 'US$' : '$') + Math.round(n).toLocaleString('es-AR'); }
   function numero(v) { var n = parseInt(String(v).replace(/\D/g, ''), 10); return isNaN(n) ? 0 : n; }
@@ -628,7 +669,21 @@
   function mesesHasta(clave) { var p = clave.split('-'), h = new Date(); return (+p[0] - h.getFullYear()) * 12 + (+p[1] - 1 - h.getMonth()); }
   function nombreMes(clave) { var p = clave.split('-'); return MESES[+p[1] - 1] + ' ' + p[0]; }
   function mesDesdeHoy(n) { return nombreMes(claveMes(n)); }
-  function mesCorto(n) { var p = claveMes(n).split('-'), hoy = new Date().getFullYear(); return MESES[+p[1] - 1].slice(0, 3) + (+p[0] !== hoy ? ' ' + String(p[0]).slice(2) : ''); }
+  function mesCortoDe(clave) { var p = clave.split('-'), hoy = new Date().getFullYear(); return MESES[+p[1] - 1].slice(0, 3) + (+p[0] !== hoy ? ' ' + String(p[0]).slice(2) : ''); }
+  function mesCorto(n) { return mesCortoDe(claveMes(n)); }
+  function soloMes(clave) { return MESES[+clave.split('-')[1] - 1]; }
+
+  // ---------- Lo que fue separando ----------
+  function sumaAportes(g) { var s = 0; for (var k in g.aportes) s += g.aportes[k].monto; return s; }
+  function tenes(g) { return g.separado + sumaAportes(g); }
+  function anotoEsteMes(g) { return !!g.aportes[claveMes(0)]; }
+  // El primer mes sin anotar, desde que se creó el gasto hasta hoy (o hasta la fecha del gasto, si ya pasó).
+  function pendiente(g) {
+    var hasta = Math.min(0, mesesHasta(g.mes));
+    for (var n = Math.min(mesesHasta(g.creado), hasta); n <= hasta; n++) { var k = claveMes(n); if (!g.aportes[k]) return k; }
+    return null;
+  }
+  function mesesAnotados(g) { return Object.keys(g.aportes).sort(function (a, b) { return mesesHasta(a) - mesesHasta(b); }); }
 
   // Cuenta animada para las cifras grandes (indica que el valor cambió).
   function cifra(el, valor, mon) {
@@ -644,7 +699,7 @@
   }
 
   // ---------- Registro ----------
-  var COLUMNAS = ['id_sesion','fecha','hora','evento','edad','ingresos','ingreso_mensual','puede_separar_mes','ahorro_actual','preferencia','app','id_gasto','gasto','moneda','monto_gasto','mes_objetivo','meses','ya_separado','reserva_por_mes','reserva_por_periodo','cantidad_gastos'];
+  var COLUMNAS = ['id_sesion','fecha','hora','evento','edad','ingresos','ingreso_mensual','puede_separar_mes','ahorro_actual','preferencia','app','id_gasto','gasto','moneda','monto_gasto','mes_objetivo','meses','ya_separado','reserva_por_mes','reserva_por_periodo','cantidad_gastos','mes_aporte','aporte','aporte_sugerido'];
   function leerRegistro() { return leer(CLAVE, []); }
   function registrar(evento, extra) {
     var a = new Date();
@@ -661,11 +716,13 @@
     var f = FREC[perfil.ingresos];
     monto = monto == null ? g.monto : monto;
     meses = Math.max(meses == null ? mesesHasta(g.mes) : meses, 1);
-    var falta = Math.max(monto - g.separado, 0);
+    // Lo que falta se reparte en los meses que quedan; si ya anotó este mes, desde el que viene.
+    var desde = anotoEsteMes(g) ? 1 : 0, cuotas = Math.max(meses - desde, 1);
+    var falta = Math.max(monto - tenes(g), 0);
     var red = g.moneda === 'USD' ? 1 : 100;
     var redondear = function (x) { return falta > 0 ? Math.min(Math.ceil(x / red) * red, falta) : 0; };
-    var periodos = Math.max(Math.round(meses * f.porMes), 1);
-    return { falta: falta, monto: monto, meses: meses, f: f, porMes: redondear(falta / meses), reserva: redondear(falta / periodos) };
+    var periodos = Math.max(Math.round(cuotas * f.porMes), 1);
+    return { falta: falta, monto: monto, meses: meses, desde: desde, cuotas: cuotas, f: f, porMes: redondear(falta / cuotas), reserva: redondear(falta / periodos) };
   }
 
   // ---------- Navegación ----------
@@ -690,7 +747,7 @@
 
   // ---------- Perfil ----------
   var GRUPOS = ['edad', 'ingresos', 'ahorro', 'riesgo', 'app'];
-  ['ingreso', 'capacidad', 'monto', 'separado'].forEach(function (id) {
+  ['ingreso', 'capacidad', 'monto', 'separado', 'aporte'].forEach(function (id) {
     $(id).addEventListener('input', function () { var n = numero(this.value); this.value = n ? n.toLocaleString('es-AR') : ''; });
   });
   function cargarPerfil() {
@@ -737,11 +794,13 @@
       var r = calcular(g), m = mesesHasta(g.mes);
       tot[g.moneda] += r.porMes;
       var cuando = m <= 0 ? '<span class="vencido">ya llegó la fecha</span>' : 'en ' + plural(m, 'mes', 'meses');
+      var p = pendiente(g);
+      if (p && r.falta) cuando += ' · <span class="anotar">anotá ' + soloMes(p) + '</span>';
       h += '<button type="button" class="gasto-item t' + g.tono + '" data-id="' + g.id + '" style="animation-delay:' + (Math.min(i, 6) * 45) + 'ms">' +
         '<span class="ficha" aria-hidden="true">' + inicial(g.gasto) + '</span>' +
         '<span class="gasto-texto"><span class="gasto-nombre">' + esc(g.gasto) + '</span><span class="gasto-meta num">' + fmt(g.monto, g.moneda) + ' · ' + nombreMes(g.mes) + '<br>' + cuando + '</span></span>' +
         '<span class="gasto-cuota">' + (!r.falta ? '<b class="listo">Listo</b><small>ya lo tenés</small>' : m <= 0 ? '<b>' + fmt(r.falta, g.moneda) + '</b><small>te falta</small>' : '<b>' + fmt(r.porMes, g.moneda) + '</b><small>por mes</small>') + '</span>' +
-        '<span class="avance" aria-hidden="true"><i style="width:' + Math.min(100, Math.round(g.separado * 100 / g.monto)) + '%"></i></span></button>';
+        '<span class="avance" aria-hidden="true"><i style="width:' + Math.min(100, Math.round(tenes(g) * 100 / g.monto)) + '%"></i></span></button>';
     });
     $('lista').innerHTML = '<div class="lista">' + h + '</div>';
     $('lista-cant').textContent = plural(gastos.length, 'gasto', 'gastos');
@@ -801,6 +860,7 @@
     if (e.key !== 'Escape') return;
     if ($('capa-gasto').classList.contains('ver')) cerrarCapa('capa-gasto');
     if ($('capa').classList.contains('ver')) cerrarCapa('capa');
+    if ($('capa-aporte').classList.contains('ver')) cerrarCapa('capa-aporte');
   });
 
   function abrirGasto(id) {
@@ -810,6 +870,11 @@
     $('gasto').value = g ? g.gasto : '';
     $('monto').value = g ? g.monto.toLocaleString('es-AR') : '';
     $('separado').value = g && g.separado ? g.separado.toLocaleString('es-AR') : '';
+    // Con meses anotados, este campo es sólo lo que tenía al empezar; lo anotado se suma aparte.
+    var anotado = g ? sumaAportes(g) : 0, conAnotados = g && mesesAnotados(g).length;
+    $('l-separado').innerHTML = (conAnotados ? '¿Cuánto tenías separado antes de empezar?' : '¿Ya tenés algo separado para esto?') + ' <small>· opcional</small>';
+    $('ayuda-separado').hidden = !conAnotados;
+    if (conAnotados) $('ayuda-separado').textContent = 'Lo que anotaste mes a mes (' + fmt(anotado, g.moneda) + ') se suma aparte.';
     var extraOpt = $('mes').querySelector('option[data-extra]'); if (extraOpt) extraOpt.remove();
     if (g && !$('mes').querySelector('option[value="' + g.mes + '"]')) {
       var o = document.createElement('option'); o.value = g.mes; o.textContent = nombreMes(g.mes); o.setAttribute('data-extra', '1');
@@ -827,14 +892,14 @@
     var nombre = $('gasto').value.trim(), monto = numero($('monto').value), mes = $('mes').value;
     mostrarError('e-gasto', !nombre); mostrarError('e-monto', !monto); mostrarError('e-mes', !mes);
     if (!nombre || !monto || !mes) return;
-    var g = editando ? buscar(editando) : { id: nuevoId(), tono: siguienteTono() };
+    var g = editando ? buscar(editando) : { id: nuevoId(), tono: siguienteTono(), aportes: {}, creado: claveMes(0) };
     g.gasto = nombre; g.monto = monto; g.mes = mes; g.moneda = moneda; g.separado = numero($('separado').value);
     if (!editando) gastos.push(g);
     guardar(CLAVE_GASTOS, gastos);
     var r = calcular(g);
     registrar('calculo', Object.assign(datosPerfil(), {
       id_gasto: g.id, gasto: g.gasto, moneda: g.moneda, monto_gasto: g.monto, mes_objetivo: nombreMes(g.mes), meses: r.meses,
-      ya_separado: g.separado, reserva_por_mes: r.porMes, reserva_por_periodo: r.reserva, cantidad_gastos: gastos.length
+      ya_separado: tenes(g), reserva_por_mes: r.porMes, reserva_por_periodo: r.reserva, cantidad_gastos: gastos.length
     }));
     cerrarCapa('capa-gasto');
     if (editando && pantalla === 'plan') abrirPlan(g.id); else { ir('inicio'); pintarInicio(); }
@@ -879,36 +944,124 @@
     var r = calcular(g, monto, meses);
     $('v-meses').textContent = plural(meses, 'mes', 'meses') + ' · ' + mesDesdeHoy(meses);
     $('v-monto').textContent = fmt(monto, m);
-    $('r-tenes').textContent = fmt(Math.min(g.separado, monto), m);
+    $('r-tenes').textContent = fmt(Math.min(tenes(g), monto), m);
     $('r-falta').textContent = fmt(r.falta, m);
     $('r-meta').textContent = fmt(monto, m);
-    $('r-avance').style.transform = 'scaleX(' + Math.min(1, g.separado / monto).toFixed(3) + ')';
+    $('r-avance').style.transform = 'scaleX(' + Math.min(1, tenes(g) / monto).toFixed(3) + ')';
     if (r.falta === 0) {
       $('r-etiqueta').textContent = 'Ya llegaste';
-      $('r-monto').removeAttribute('data-valor'); $('r-monto').textContent = fmt(g.separado, m);
+      $('r-monto').removeAttribute('data-valor'); $('r-monto').textContent = fmt(tenes(g), m);
       $('r-periodo').textContent = 'separados para este gasto';
     } else {
       $('r-etiqueta').textContent = 'Separá';
       cifra($('r-monto'), r.reserva, m);
       $('r-periodo').textContent = r.f.texto;
     }
-    pintarMeses(r, m);
+    pintarMeses(g, r, m);
+    pintarAporte(g);
     pintarConsejos(g, r);
     pintarRecos(g, r);
   }
-  // Un casillero por mes; si son muchos, los primeros, un salto y el último.
-  function pintarMeses(r, m) {
-    var n = r.meses, idx = [];
-    if (n <= 12) for (var i = 1; i <= n; i++) idx.push(i);
-    else { for (var j = 1; j <= 10; j++) idx.push(j); idx.push(0); idx.push(n); }
-    var anim = !$('meses').childElementCount;
-    $('meses').innerHTML = r.falta === 0 ? '' : idx.map(function (k, p) {
-      if (k === 0) return '<div class="mes salto" aria-hidden="true">…</div>';
-      var demora = anim ? ' style="animation-delay:' + (p * 30) + 'ms"' : ' style="animation:none"';
-      return '<div class="mes' + (k === n ? ' meta' : '') + '"' + demora + '><span>' + mesCorto(k) + '</span><b>' + fmt(r.porMes, m) + '</b></div>';
+  // Primero los meses ya anotados; después un casillero por cada mes que queda
+  // (si son muchos, los primeros, un salto y el último) y al final el mes del gasto.
+  function pintarMeses(g, r, m) {
+    var anim = !$('meses').childElementCount, p = 0;
+    var demora = function () { return anim ? ' style="animation-delay:' + (p++ * 30) + 'ms"' : ' style="animation:none"'; };
+    var h = mesesAnotados(g).map(function (k) {
+      var a = g.aportes[k], clase = !a.monto ? 'nada' : a.monto < a.sugerido ? 'corto' : 'hecho';
+      return '<div class="mes ' + clase + '"' + demora() + '><span>' + mesCortoDe(k) + ' ✓</span><b>' + fmt(a.monto, m) + '</b></div>';
     }).join('');
-    $('meses-total').textContent = r.falta === 0 ? 'No te falta nada' : plural(n, 'mes', 'meses') + ' de ' + fmt(r.porMes, m);
+    if (r.falta > 0) {
+      var idx = [];
+      if (r.cuotas <= 12) for (var i = 0; i < r.cuotas; i++) idx.push(r.desde + i);
+      else { for (var j = 0; j < 10; j++) idx.push(r.desde + j); idx.push(-1); idx.push(r.desde + r.cuotas - 1); }
+      h += idx.map(function (k) {
+        if (k < 0) return '<div class="mes salto" aria-hidden="true">…</div>';
+        return '<div class="mes"' + demora() + '><span>' + mesCorto(k) + '</span><b>' + fmt(r.porMes, m) + '</b></div>';
+      }).join('');
+      h += '<div class="mes meta"' + demora() + '><span>' + mesCorto(r.meses) + '</span><b>Meta</b></div>';
+    }
+    $('meses').innerHTML = h;
+    $('meses-total').textContent = r.falta === 0 ? 'No te falta nada' : 'Quedan ' + plural(r.cuotas, 'mes', 'meses') + ' de ' + fmt(r.porMes, m);
   }
+
+  // ---------- Anotar lo que separó ----------
+  function pintarAporte(g) {
+    var r = calcular(g), m = g.moneda, p = pendiente(g), el = $('aporte-panel'), h = '';
+    if (p && r.falta > 0) {
+      var esteMes = p === claveMes(0);
+      h = '<h2>' + (esteMes ? '¿Separaste algo este mes?' : '¿Separaste algo en ' + soloMes(p) + '?') + '</h2>' +
+        '<p>Te tocaba ' + fmt(r.porMes, m) + '. Anotá lo que hayas podido, sea más o menos: los meses que quedan se recalculan.</p>' +
+        '<div class="aporte-btns"><button type="button" class="btn btn-principal" data-accion="si">Sí, anotar cuánto</button>' +
+        '<button type="button" class="btn btn-secundario" data-accion="no">No pude</button></div>';
+    } else if (anotoEsteMes(g)) {
+      var a = g.aportes[claveMes(0)], dif = a.monto - a.sugerido;
+      h = '<h2>' + (a.monto ? 'Este mes separaste ' + fmt(a.monto, m) : 'Este mes no pudiste separar') + '</h2>' +
+        (a.sugerido ? (dif > 0 ? '<span class="estado ok">' + ICONOS.check + fmt(dif, m) + ' más de lo previsto</span>'
+          : dif < 0 ? '<span class="estado mas">' + fmt(-dif, m) + ' menos de lo previsto</span>'
+          : '<span class="estado ok">' + ICONOS.check + 'Justo lo previsto</span>') : '') +
+        '<p style="margin-top:10px">' + (r.falta === 0 ? 'Con esto llegaste a la meta.'
+          : 'Desde ' + soloMes(claveMes(1)) + ', separá <b>' + fmt(r.porMes, m) + '</b> por mes' + (r.porMes !== a.sugerido ? ' (antes ' + fmt(a.sugerido, m) + ')' : '') + '.') + '</p>' +
+        '<button type="button" class="link-btn" data-accion="cambiar">Cambiar lo anotado</button>';
+    }
+    el.innerHTML = h;
+    el.hidden = !h;
+  }
+  $('aporte-panel').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-accion]'); if (!b) return;
+    var g = buscar(actual), accion = b.getAttribute('data-accion');
+    if (accion === 'no') guardarAporte(pendiente(g), 0, calcular(g).porMes);
+    else abrirAporte(accion === 'cambiar' ? claveMes(0) : pendiente(g));
+  });
+  function abrirAporte(clave) {
+    var g = buscar(actual), a = g.aportes[clave];
+    aporteMes = clave;
+    aporteSug = a ? a.sugerido : calcular(g).porMes;
+    $('t-aporte').textContent = '¿Cuánto separaste en ' + soloMes(clave) + '?';
+    $('aporte-sub').textContent = 'Para ' + g.gasto + '. Te tocaba ' + fmt(aporteSug, g.moneda) + '.';
+    $('pref-aporte').textContent = g.moneda === 'USD' ? 'US$' : '$';
+    $('aporte').value = a ? a.monto.toLocaleString('es-AR') : '';
+    $('aporte-sugerencias').innerHTML = (aporteSug ? '<button type="button" data-v="' + aporteSug + '">Lo que tocaba: ' + fmt(aporteSug, g.moneda) + '</button>' : '') +
+      '<button type="button" data-v="0">No pude: ' + fmt(0, g.moneda) + '</button>';
+    $('borrar-aporte').hidden = !a;
+    $('e-aporte').classList.remove('ver');
+    abrirCapa('capa-aporte', $('aporte'));
+  }
+  $('aporte-sugerencias').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-v]'); if (!b) return;
+    var v = +b.getAttribute('data-v');
+    $('aporte').value = v.toLocaleString('es-AR');
+    $('aporte').focus();
+  });
+  function guardarAporte(clave, monto, sugerido) {
+    var g = buscar(actual);
+    g.aportes[clave] = { monto: monto, sugerido: sugerido };
+    guardar(CLAVE_GASTOS, gastos);
+    var r = calcular(g);
+    registrar('aporte', Object.assign(datosPerfil(), {
+      id_gasto: g.id, gasto: g.gasto, moneda: g.moneda, monto_gasto: g.monto, mes_objetivo: nombreMes(g.mes), meses: r.meses,
+      ya_separado: tenes(g), reserva_por_mes: r.porMes, reserva_por_periodo: r.reserva, cantidad_gastos: gastos.length,
+      mes_aporte: nombreMes(clave), aporte: monto, aporte_sugerido: sugerido
+    }));
+    pintar();
+  }
+  $('guardar-aporte').addEventListener('click', function () {
+    var vacio = !$('aporte').value.trim();
+    mostrarError('e-aporte', vacio);
+    if (vacio) return;
+    cerrarCapa('capa-aporte');
+    guardarAporte(aporteMes, numero($('aporte').value), aporteSug);
+  });
+  $('borrar-aporte').addEventListener('click', function () {
+    var g = buscar(actual);
+    delete g.aportes[aporteMes];
+    guardar(CLAVE_GASTOS, gastos);
+    registrar('aporte_borrado', { id_gasto: g.id, gasto: g.gasto, moneda: g.moneda, mes_aporte: nombreMes(aporteMes) });
+    cerrarCapa('capa-aporte');
+    pintar();
+  });
+  $('cancelar-aporte').addEventListener('click', function () { cerrarCapa('capa-aporte'); });
+  $('capa-aporte').addEventListener('click', function (e) { if (e.target === this) cerrarCapa('capa-aporte'); });
 
   function consejo(icono, titulo, texto) {
     return '<div class="consejo">' + ICONOS[icono] + '<div><b>' + titulo + '</b><p>' + texto + '</p></div></div>';
@@ -922,7 +1075,7 @@
     } else if (perfil.ahorro === 'no-sobra') {
       h += consejo('ola', 'Empezá con lo que puedas', 'Aunque sea menos que la cifra de arriba, separar algo todos los meses ya te acerca. Después ajustás.');
     } else {
-      h += consejo('ola', 'Si se complica un mes, ajustá', 'Si un mes no llegás, no pasa nada: mové el tiempo o el monto en "Probá otras opciones" y seguí.');
+      h += consejo('ola', 'Si se complica un mes, anotalo igual', 'Si un mes no llegás, no pasa nada: anotá lo que pudiste y los meses que quedan se recalculan solos.');
     }
     $('consejos').innerHTML = h;
   }
@@ -991,10 +1144,11 @@
   $('ver-registro').addEventListener('click', function () {
     var reg = leerRegistro();
     var c = function (ev) { return reg.filter(function (f) { return f.evento === ev; }).length; };
-    $('reg-resumen').textContent = 'En este celular: ' + plural(c('apertura'), 'apertura', 'aperturas') + ', ' + plural(c('calculo'), 'cálculo', 'cálculos') + ' y ' + plural(c('ver_recomendaciones'), 'vista', 'vistas') + ' de recomendaciones.';
+    $('reg-resumen').textContent = 'En este celular: ' + plural(c('apertura'), 'apertura', 'aperturas') + ', ' + plural(c('calculo'), 'cálculo', 'cálculos') + ', ' + plural(c('ver_recomendaciones'), 'vista', 'vistas') + ' de recomendaciones y ' + plural(c('aporte'), 'mes anotado', 'meses anotados') + '.';
     var filas = reg.slice(-25).reverse().map(function (f) {
       return '<tr><td class="num">' + esc(f.fecha) + '<br>' + esc(f.hora) + '</td><td>' + esc(f.evento) + '</td><td>' +
-        (f.evento === 'calculo' ? esc(f.gasto) + ': ' + esc(fmt(f.reserva_por_mes || f.reserva_por_periodo || 0, f.moneda)) + ' por mes' : esc(f.gasto || '')) + '</td></tr>';
+        (f.evento === 'calculo' ? esc(f.gasto) + ': ' + esc(fmt(f.reserva_por_mes || f.reserva_por_periodo || 0, f.moneda)) + ' por mes'
+          : f.evento === 'aporte' ? esc(f.gasto) + ': ' + esc(fmt(f.aporte || 0, f.moneda)) + ' en ' + esc(f.mes_aporte) : esc(f.gasto || '')) + '</td></tr>';
     }).join('');
     $('reg-tabla').innerHTML = reg.length ? '<table class="tabla"><thead><tr><th>Cuándo</th><th>Evento</th><th>Detalle</th></tr></thead><tbody>' + filas + '</tbody></table>' : '<p class="ayuda">Todavía no hay eventos.</p>';
     abrirCapa('capa', $('cerrar'));
