@@ -50,10 +50,6 @@
   .logo svg { width: 28px; height: 28px; }
   .icono-btn { width: 38px; height: 38px; border-radius: 12px; border: 0; background: var(--salvia-50); color: var(--salvia-700); display: grid; place-items: center; cursor: pointer; }
   .icono-btn svg { width: 18px; height: 18px; }
-  .progreso { margin-top: 14px; display: flex; align-items: center; gap: 10px; }
-  .progreso-pista { flex: 1; height: 6px; border-radius: 99px; background: var(--salvia-100); overflow: hidden; }
-  .progreso-barra { height: 100%; width: 33%; background: var(--salvia-700); border-radius: 99px; transition: width .4s ease; }
-  .progreso-texto { font-size: 12px; font-weight: 600; color: var(--texto-2); white-space: nowrap; }
 
   /* ---------- Pantallas ---------- */
   .contenido { flex: 1; padding: 8px 20px 120px; }
@@ -180,6 +176,29 @@
   .tabla { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0 16px; }
   .tabla th, .tabla td { text-align: left; padding: 7px 4px; border-bottom: 1px solid var(--borde); vertical-align: top; }
   .hoja .fila-btn { display: flex; gap: 10px; }
+
+  /* ---------- Inicio (v3) ---------- */
+  .barra-acciones { display: flex; gap: 8px; }
+  .heroe .desglose { position: relative; font-size: 14px; color: var(--texto-2); margin: 0; }
+  .heroe .desglose b { color: var(--texto); }
+  .lista-titulo { display: flex; justify-content: space-between; align-items: baseline; margin: 22px 2px 10px; }
+  .lista-titulo h2 { font-size: 18px; margin: 0; letter-spacing: -.3px; color: var(--salvia-900); }
+  .lista-titulo span { font-size: 13px; color: var(--texto-3); }
+  .gasto-item { display: block; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; background: #fff; border: 1px solid var(--borde); border-radius: var(--r-md); padding: 15px 16px; margin-bottom: 10px; box-shadow: var(--sombra); transition: transform .1s ease; }
+  .gasto-item:active { transform: scale(.99); }
+  .gasto-fila { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .gasto-nombre { font-weight: 800; font-size: 16px; letter-spacing: -.2px; }
+  .gasto-meta { font-size: 13px; color: var(--texto-2); margin-top: 2px; }
+  .gasto-cuota { text-align: right; white-space: nowrap; }
+  .gasto-cuota b { display: block; font-size: 18px; font-variant-numeric: tabular-nums; color: var(--salvia-900); }
+  .gasto-cuota small { font-size: 12px; color: var(--texto-3); }
+  .mini-barra { height: 5px; border-radius: 99px; background: var(--salvia-100); margin-top: 12px; overflow: hidden; }
+  .mini-barra i { display: block; height: 100%; background: var(--salvia-700); border-radius: 99px; }
+  .vacio { text-align: center; padding: 30px 20px; border: 1.5px dashed var(--salvia-300); border-radius: var(--r-lg); color: var(--texto-2); background: var(--salvia-50); }
+  .vacio b { display: block; color: var(--salvia-900); font-size: 17px; margin-bottom: 4px; }
+  .link-btn { border: 0; background: transparent; font: inherit; font-size: 14px; font-weight: 700; color: var(--salvia-700); cursor: pointer; padding: 8px 0; }
+  .link-btn.peligro { color: var(--aviso); }
+  .volver { display: inline-flex; align-items: center; gap: 4px; margin: 2px 0 4px; }
 </style>
 </head>
 <body>
@@ -192,25 +211,26 @@
         <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="10" fill="#4f6b53"/><path d="M9 21c0-7 5-11 14-11-1 8-5 13-11 13-1.5 0-2.4-.6-3-2Z" fill="#e9f0e7"/><path d="M10 22c3-4 6-6 9-7.5" stroke="#4f6b53" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
         SeparApp
       </div>
-      <button class="icono-btn" id="ver-registro" aria-label="Ver registro de uso" title="Ver registro">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-      </button>
-    </div>
-    <div class="progreso" aria-hidden="true">
-      <div class="progreso-pista"><div class="progreso-barra" id="progreso"></div></div>
-      <div class="progreso-texto" id="progreso-texto">Paso 1 de 3</div>
+      <div class="barra-acciones">
+        <button class="icono-btn" id="ir-perfil" aria-label="Mi perfil" title="Mi perfil" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+        </button>
+        <button class="icono-btn" id="ver-registro" aria-label="Ver registro de uso" title="Ver registro">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        </button>
+      </div>
     </div>
   </header>
 
   <main class="contenido">
 
     <!-- ===== Pantalla 1: Perfil ===== -->
-    <section class="pantalla activa" id="p1" aria-labelledby="t1">
+    <section class="pantalla" id="p-perfil" aria-labelledby="t1">
       <p class="eyebrow">Tu perfil</p>
-      <h1 id="t1">Armemos tu plan, paso a paso</h1>
-      <p class="bajada">Si se te viene un gasto grande, es normal que preocupe. Primero contanos un poco de vos: son 5 preguntas rápidas y no te pedimos datos bancarios.</p>
+      <h1 id="t1">Primero, contanos de vos</h1>
+      <p class="bajada" id="perfil-bajada">Lo completás una sola vez y queda guardado en este celular. No hace falta crear una cuenta ni dar datos bancarios.</p>
 
-      <div class="pregunta" data-grupo="edad">
+      <div class="pregunta">
         <p class="pregunta-titulo">¿Qué edad tenés?</p>
         <div class="chips">
           <label class="chip"><input type="radio" name="edad" value="18-24"><span>18 a 24</span></label>
@@ -220,7 +240,7 @@
         </div>
       </div>
 
-      <div class="pregunta" data-grupo="ingresos">
+      <div class="pregunta">
         <p class="pregunta-titulo">¿Cómo cobrás?</p>
         <div class="chips">
           <label class="chip"><input type="radio" name="ingresos" value="mensual"><span>Sueldo mensual</span></label>
@@ -230,7 +250,18 @@
         </div>
       </div>
 
-      <div class="pregunta" data-grupo="ahorro">
+      <div class="campo">
+        <label for="ingreso">¿Cuánto ganás por mes, más o menos? <small>· opcional</small></label>
+        <div class="entrada"><span class="prefijo">$</span><input id="ingreso" type="text" inputmode="numeric" placeholder="Ej.: 1.200.000" autocomplete="off"></div>
+      </div>
+
+      <div class="campo">
+        <label for="capacidad">¿Cuánto podés separar por mes, más o menos? <small>· opcional</small></label>
+        <div class="entrada"><span class="prefijo">$</span><input id="capacidad" type="text" inputmode="numeric" placeholder="Ej.: 150.000" autocomplete="off"></div>
+        <p class="ayuda">Los textos en gris son ejemplos, no datos tuyos.</p>
+      </div>
+
+      <div class="pregunta">
         <p class="pregunta-titulo">Hoy, la plata que te sobra…</p>
         <div class="chips">
           <label class="chip"><input type="radio" name="ahorro" value="cuenta"><span>Queda en la cuenta</span></label>
@@ -240,7 +271,7 @@
         </div>
       </div>
 
-      <div class="pregunta" data-grupo="riesgo">
+      <div class="pregunta">
         <p class="pregunta-titulo">Para la plata que separes, preferís…</p>
         <div class="chips bloque">
           <label class="chip"><input type="radio" name="riesgo" value="conservador"><span>Que no baje nunca, aunque rinda poco</span></label>
@@ -248,8 +279,8 @@
         </div>
       </div>
 
-      <div class="pregunta" data-grupo="app">
-        <p class="pregunta-titulo">¿Qué usás más para manejar tu plata?</p>
+      <div class="pregunta">
+        <p class="pregunta-titulo">¿Dónde tenés la plata?</p>
         <div class="chips">
           <label class="chip"><input type="radio" name="app" value="Mercado Pago"><span>Mercado Pago</span></label>
           <label class="chip"><input type="radio" name="app" value="Ualá"><span>Ualá</span></label>
@@ -257,57 +288,32 @@
           <label class="chip"><input type="radio" name="app" value="otra"><span>Otra</span></label>
         </div>
       </div>
-      <div class="error" id="e-perfil">Respondé las 5 preguntas para que el plan se adapte a vos.</div>
+      <div class="error" id="e-perfil">Respondé las preguntas que no dicen "opcional".</div>
+      <p id="zona-reinicio" hidden><button type="button" class="link-btn peligro" id="reiniciar">Borrar mis datos y empezar de cero</button></p>
     </section>
 
-    <!-- ===== Pantalla 2: Gasto ===== -->
-    <section class="pantalla" id="p2" aria-labelledby="t2">
-      <p class="eyebrow">Tu gasto</p>
-      <h1 id="t2">¿Para qué querés separar?</h1>
-      <p class="bajada">Con números aproximados alcanza. Después los podés ajustar.</p>
+    <!-- ===== Pantalla 2: Inicio ===== -->
+    <section class="pantalla" id="p-inicio" aria-labelledby="t2">
+      <p class="eyebrow">Inicio</p>
+      <h1 id="t2">Tus gastos previstos</h1>
 
-      <div class="campo">
-        <label for="gasto">¿Qué gasto es?</label>
-        <div class="entrada"><input id="gasto" type="text" maxlength="40" placeholder="Ej.: viaje a Bariloche" autocomplete="off"></div>
-        <div class="sugerencias" id="sugerencias">
-          <button type="button">Viaje</button><button type="button">Auto</button><button type="button">Mudanza</button><button type="button">Heladera</button><button type="button">Estudios</button>
-        </div>
-        <div class="error" id="e-gasto">Contanos qué gasto es, aunque sea en una palabra.</div>
+      <div class="heroe" id="total" aria-live="polite" hidden>
+        <p class="etq">Para todos tus gastos, separá</p>
+        <p class="monto" id="total-monto">$0</p>
+        <p class="periodo" id="total-periodo">por mes</p>
+        <p class="desglose" id="total-extra"></p>
       </div>
+      <div class="aviso-cap" id="total-cap" hidden></div>
 
-      <div class="campo">
-        <label for="monto">¿Cuánto cuesta?</label>
-        <div class="entrada">
-          <span class="prefijo" id="pref-monto">$</span>
-          <input id="monto" type="text" inputmode="numeric" placeholder="Ej.: 900.000" autocomplete="off">
-          <div class="moneda" role="group" aria-label="Moneda del gasto">
-            <button type="button" data-moneda="ARS" class="on">Pesos</button>
-            <button type="button" data-moneda="USD">Dólares</button>
-          </div>
-        </div>
-        <div class="error" id="e-monto">Poné cuánto cuesta, aunque sea aproximado.</div>
-      </div>
+      <div class="lista-titulo" id="lista-titulo" hidden><h2>Cuánto por cada uno</h2><span id="lista-cant"></span></div>
+      <div id="lista"></div>
 
-      <div class="campo">
-        <label for="mes">¿Para cuándo lo necesitás?</label>
-        <div class="entrada"><select id="mes"><option value="">Elegí el mes</option></select></div>
-        <div class="error" id="e-mes">Elegí para qué mes lo necesitás.</div>
-      </div>
-
-      <div class="campo">
-        <label for="separado">¿Ya tenés algo separado para esto? <small>· opcional</small></label>
-        <div class="entrada"><span class="prefijo pref-moneda">$</span><input id="separado" type="text" inputmode="numeric" placeholder="0" autocomplete="off"></div>
-      </div>
-
-      <div class="campo">
-        <label for="capacidad">¿Cuánto creés que podés separar cada vez que cobrás? <small>· opcional</small></label>
-        <div class="entrada"><span class="prefijo pref-moneda">$</span><input id="capacidad" type="text" inputmode="numeric" placeholder="Ej.: 60.000" autocomplete="off"></div>
-        <p class="ayuda">Los textos en gris son ejemplos, no datos tuyos.</p>
-      </div>
+      <p class="aliento">Lo que separás hoy es la tranquilidad de mañana.</p>
     </section>
 
-    <!-- ===== Pantalla 3: Plan ===== -->
-    <section class="pantalla" id="p3" aria-labelledby="t3">
+    <!-- ===== Pantalla 3: Plan de un gasto ===== -->
+    <section class="pantalla" id="p-plan" aria-labelledby="t3">
+      <button type="button" class="link-btn volver" id="volver">← Inicio</button>
       <p class="eyebrow">Tu plan</p>
       <h1 id="t3">Para tu <span id="r-gasto"></span></h1>
 
@@ -322,8 +328,6 @@
           <div style="text-align:right">Meta en <span id="r-mes"></span><b id="r-meta">$0</b></div>
         </div>
       </div>
-
-      <div class="aviso-cap" id="r-cap" hidden></div>
 
       <div class="segmento" role="tablist">
         <button class="on" data-panel="plan" role="tab">Mi plan</button>
@@ -341,6 +345,7 @@
             <div class="control-fila"><span>Monto del gasto</span><b id="v-monto"></b></div>
             <input type="range" id="s-monto" min="50" max="150" step="1" aria-label="Monto del gasto">
           </div>
+          <p class="ayuda">Esto es para probar: no cambia el gasto guardado. Para cambiarlo, tocá "Editar gasto".</p>
         </div>
         <div class="tarjeta">
           <p class="titulo-bloque">Para que funcione</p>
@@ -352,18 +357,63 @@
         <div id="recos"></div>
         <p class="legal">Información general según tus respuestas, no asesoramiento financiero personalizado. Los rendimientos cambian: revisá condiciones y riesgos en cada app antes de decidir.</p>
       </div>
-
-      <p class="aliento">Lo que separás hoy es la tranquilidad de mañana.</p>
     </section>
   </main>
 
   <div class="pie">
     <div class="pie-interno">
-      <button class="btn btn-secundario" id="atras" hidden>Atrás</button>
-      <button class="btn btn-principal" id="siguiente">Continuar</button>
+      <button class="btn btn-secundario" id="pie-2" hidden></button>
+      <button class="btn btn-principal" id="pie-1">Continuar</button>
     </div>
   </div>
 </div>
+</div>
+
+<!-- Agregar / editar gasto -->
+<div class="capa" id="capa-gasto" role="dialog" aria-modal="true" aria-labelledby="t-gasto">
+  <div class="hoja">
+    <p class="eyebrow">Tu gasto</p>
+    <h3 id="t-gasto" style="font-size:22px;margin:0 0 16px;color:var(--salvia-900)">Nuevo gasto</h3>
+
+    <div class="campo">
+      <label for="gasto">¿Qué gasto es?</label>
+      <div class="entrada"><input id="gasto" type="text" maxlength="40" placeholder="Ej.: viaje a Bariloche" autocomplete="off"></div>
+      <div class="sugerencias" id="sugerencias">
+        <button type="button">Viaje</button><button type="button">Auto</button><button type="button">Mudanza</button><button type="button">Heladera</button><button type="button">Estudios</button>
+      </div>
+      <div class="error" id="e-gasto">Contanos qué gasto es, aunque sea en una palabra.</div>
+    </div>
+
+    <div class="campo">
+      <label for="monto">¿Cuánto cuesta?</label>
+      <div class="entrada">
+        <span class="prefijo" id="pref-monto">$</span>
+        <input id="monto" type="text" inputmode="numeric" placeholder="Ej.: 900.000" autocomplete="off">
+        <div class="moneda" role="group" aria-label="Moneda del gasto">
+          <button type="button" data-moneda="ARS" class="on">Pesos</button>
+          <button type="button" data-moneda="USD">Dólares</button>
+        </div>
+      </div>
+      <div class="error" id="e-monto">Poné cuánto cuesta, aunque sea aproximado.</div>
+    </div>
+
+    <div class="campo">
+      <label for="mes">¿Para cuándo lo necesitás?</label>
+      <div class="entrada"><select id="mes"><option value="">Elegí el mes</option></select></div>
+      <div class="error" id="e-mes">Elegí para qué mes lo necesitás.</div>
+    </div>
+
+    <div class="campo">
+      <label for="separado">¿Ya tenés algo separado para esto? <small>· opcional</small></label>
+      <div class="entrada"><span class="prefijo pref-moneda">$</span><input id="separado" type="text" inputmode="numeric" placeholder="0" autocomplete="off"></div>
+    </div>
+
+    <div class="fila-btn">
+      <button class="btn btn-principal" id="guardar-gasto">Guardar</button>
+      <button class="btn btn-secundario" id="cancelar-gasto">Cancelar</button>
+    </div>
+    <p style="text-align:center;margin:10px 0 0"><button type="button" class="link-btn peligro" id="borrar-gasto" hidden>Borrar este gasto</button></p>
+  </div>
 </div>
 
 <!-- Registro de uso (equipo) -->
@@ -382,13 +432,13 @@
 <script>
 (function () {
   'use strict';
-  var CLAVE = 'separapp_registro';
+  var CLAVE = 'separapp_registro', CLAVE_PERFIL = 'separapp_perfil', CLAVE_GASTOS = 'separapp_gastos', CLAVE_ID = 'separapp_id';
   var MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   var FREC = {
-    mensual:   { porMes: 1,       texto: 'por mes',            corto: 'cada vez que cobrás' },
-    quincenal: { porMes: 2,       texto: 'cada 15 días',       corto: 'cada vez que cobrás' },
-    semanal:   { porMes: 52 / 12, texto: 'por semana',         corto: 'cada vez que cobrás' },
-    variable:  { porMes: 1,       texto: 'por mes, en promedio', corto: 'por mes' }
+    mensual:   { porMes: 1,       texto: 'por mes' },
+    quincenal: { porMes: 2,       texto: 'cada 15 días' },
+    semanal:   { porMes: 52 / 12, texto: 'por semana' },
+    variable:  { porMes: 1,       texto: 'por mes, en promedio' }
   };
   var ICONOS = {
     reloj: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
@@ -398,155 +448,258 @@
     info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg>'
   };
   var $ = function (id) { return document.getElementById(id); };
-  var sesion = Math.random().toString(36).slice(2, 8);
-  var pantalla = 1;
-  var moneda = 'ARS';
-  var perfil = {}, datos = null, recosVistas = false;
+  var cada = function (sel, fn) { Array.prototype.forEach.call(document.querySelectorAll(sel), fn); };
 
-  function fmt(n, mon) {
-    return new Intl.NumberFormat('es-AR', { style: 'currency', currency: mon || moneda, maximumFractionDigits: 0 }).format(n);
-  }
+  // ---------- Datos guardados en este celular ----------
+  function leer(clave, def) { try { var v = JSON.parse(localStorage.getItem(clave)); return v == null ? def : v; } catch (e) { return def; } }
+  function guardar(clave, v) { try { localStorage.setItem(clave, JSON.stringify(v)); } catch (e) {} }
+  function nuevoId() { return Math.random().toString(36).slice(2, 8); }
+  var sesion = leer(CLAVE_ID, null);
+  if (!sesion) { sesion = nuevoId(); guardar(CLAVE_ID, sesion); }
+  var perfil = leer(CLAVE_PERFIL, null);
+  var gastos = leer(CLAVE_GASTOS, []);
+  var actual = null, editando = null, moneda = 'ARS', pantalla = '', recosVistas = {};
+
+  function fmt(n, mon) { return new Intl.NumberFormat('es-AR', { style: 'currency', currency: mon || 'ARS', maximumFractionDigits: 0 }).format(n); }
   function numero(v) { var n = parseInt(String(v).replace(/\D/g, ''), 10); return isNaN(n) ? 0 : n; }
-  function mesDesdeHoy(n) { var d = new Date(); d.setDate(1); d.setMonth(d.getMonth() + n); return MESES[d.getMonth()] + ' ' + d.getFullYear(); }
   function plural(n, s, p) { return n + ' ' + (n === 1 ? s : p); }
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  // Los meses se guardan como "2027-1" (año-mes), así el plazo se acorta solo con el tiempo.
+  function claveMes(n) { var d = new Date(); d.setDate(1); d.setMonth(d.getMonth() + n); return d.getFullYear() + '-' + (d.getMonth() + 1); }
+  function mesesHasta(clave) { var p = clave.split('-'), h = new Date(); return (+p[0] - h.getFullYear()) * 12 + (+p[1] - 1 - h.getMonth()); }
+  function nombreMes(clave) { var p = clave.split('-'); return MESES[+p[1] - 1] + ' ' + p[0]; }
+  function mesDesdeHoy(n) { return nombreMes(claveMes(n)); }
 
   // ---------- Registro ----------
-  var COLUMNAS = ['id_sesion','fecha','hora','evento','edad','ingresos','ahorro_actual','preferencia','app','gasto','moneda','monto_gasto','mes_objetivo','meses','ya_separado','puede_separar','reserva_por_periodo'];
-  function leerRegistro() { try { return JSON.parse(localStorage.getItem(CLAVE)) || []; } catch (e) { return []; } }
+  var COLUMNAS = ['id_sesion','fecha','hora','evento','edad','ingresos','ingreso_mensual','puede_separar_mes','ahorro_actual','preferencia','app','id_gasto','gasto','moneda','monto_gasto','mes_objetivo','meses','ya_separado','reserva_por_mes','reserva_por_periodo','cantidad_gastos'];
+  function leerRegistro() { return leer(CLAVE, []); }
   function registrar(evento, extra) {
     var a = new Date();
     var fila = Object.assign({ id_sesion: sesion, fecha: a.toLocaleDateString('es-AR'), hora: a.toLocaleTimeString('es-AR'), evento: evento }, extra || {});
-    var r = leerRegistro(); r.push(fila);
-    try { localStorage.setItem(CLAVE, JSON.stringify(r)); } catch (e) {}
+    var r = leerRegistro(); r.push(fila); guardar(CLAVE, r);
+  }
+  function datosPerfil() {
+    return { edad: perfil.edad, ingresos: perfil.ingresos, ingreso_mensual: perfil.ingreso || '', puede_separar_mes: perfil.capacidad || '',
+      ahorro_actual: perfil.ahorro, preferencia: perfil.riesgo, app: perfil.app };
+  }
+
+  // ---------- Cálculo ----------
+  function calcular(g, monto, meses) {
+    var f = FREC[perfil.ingresos];
+    monto = monto == null ? g.monto : monto;
+    meses = Math.max(meses == null ? mesesHasta(g.mes) : meses, 1);
+    var falta = Math.max(monto - g.separado, 0);
+    var red = g.moneda === 'USD' ? 1 : 100;
+    var redondear = function (x) { return falta > 0 ? Math.ceil(x / red) * red : 0; };
+    var periodos = Math.max(Math.round(meses * f.porMes), 1);
+    return { falta: falta, monto: monto, meses: meses, f: f, porMes: redondear(falta / meses), reserva: redondear(falta / periodos) };
   }
 
   // ---------- Navegación ----------
-  function ir(n) {
-    pantalla = n;
-    [1, 2, 3].forEach(function (i) { $('p' + i).classList.toggle('activa', i === n); });
-    $('progreso').style.width = (n * 100 / 3) + '%';
-    $('progreso-texto').textContent = 'Paso ' + n + ' de 3';
-    $('atras').hidden = n === 1;
-    $('siguiente').textContent = n === 1 ? 'Continuar' : n === 2 ? 'Ver mi plan' : 'Editar mi gasto';
+  function ir(nombre) {
+    pantalla = nombre;
+    ['perfil', 'inicio', 'plan'].forEach(function (p) { $('p-' + p).classList.toggle('activa', p === nombre); });
+    $('ir-perfil').hidden = !perfil || nombre === 'perfil';
+    var b1 = $('pie-1'), b2 = $('pie-2');
+    if (nombre === 'perfil') { b1.textContent = perfil ? 'Guardar' : 'Continuar'; b2.textContent = 'Cancelar'; b2.hidden = !perfil; }
+    else if (nombre === 'inicio') { b1.textContent = '+ Agregar gasto'; b2.hidden = true; }
+    else { b1.textContent = 'Editar gasto'; b2.textContent = 'Inicio'; b2.hidden = false; }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-  $('atras').addEventListener('click', function () { ir(pantalla - 1); });
-  $('siguiente').addEventListener('click', function () {
-    if (pantalla === 1) { if (validarPerfil()) ir(2); }
-    else if (pantalla === 2) { calcularYMostrar(); }
-    else { ir(2); }
+  $('pie-1').addEventListener('click', function () {
+    if (pantalla === 'perfil') guardarPerfil();
+    else if (pantalla === 'inicio') abrirGasto(null);
+    else abrirGasto(actual);
   });
+  $('pie-2').addEventListener('click', function () { ir('inicio'); pintarInicio(); });
+  $('volver').addEventListener('click', function () { ir('inicio'); pintarInicio(); });
+  $('ir-perfil').addEventListener('click', function () { cargarPerfil(); ir('perfil'); });
 
-  // ---------- Pantalla 1 ----------
-  function validarPerfil() {
-    var ok = true;
-    ['edad', 'ingresos', 'ahorro', 'riesgo', 'app'].forEach(function (g) {
-      var s = document.querySelector('input[name="' + g + '"]:checked');
-      if (s) perfil[g] = s.value; else ok = false;
-    });
-    $('e-perfil').classList.toggle('ver', !ok);
-    return ok;
-  }
-
-  // ---------- Pantalla 2 ----------
-  for (var i = 1; i <= 36; i++) { var o = document.createElement('option'); o.value = i; o.textContent = mesDesdeHoy(i) + ' · en ' + plural(i, 'mes', 'meses'); $('mes').appendChild(o); }
-  ['monto', 'separado', 'capacidad'].forEach(function (id) {
+  // ---------- Perfil ----------
+  var GRUPOS = ['edad', 'ingresos', 'ahorro', 'riesgo', 'app'];
+  ['ingreso', 'capacidad', 'monto', 'separado'].forEach(function (id) {
     $(id).addEventListener('input', function () { var n = numero(this.value); this.value = n ? n.toLocaleString('es-AR') : ''; });
   });
-  Array.prototype.forEach.call(document.querySelectorAll('#sugerencias button'), function (b) {
-    b.addEventListener('click', function () { $('gasto').value = b.textContent; $('gasto').focus(); });
-  });
-  Array.prototype.forEach.call(document.querySelectorAll('.moneda button'), function (b) {
-    b.addEventListener('click', function () {
-      moneda = b.getAttribute('data-moneda');
-      Array.prototype.forEach.call(document.querySelectorAll('.moneda button'), function (x) { x.classList.toggle('on', x === b); });
-      var p = moneda === 'USD' ? 'US$' : '$';
-      $('pref-monto').textContent = p;
-      Array.prototype.forEach.call(document.querySelectorAll('.pref-moneda'), function (x) { x.textContent = p; });
-      $('monto').placeholder = moneda === 'USD' ? 'Ej.: 1.500' : 'Ej.: 900.000';
-      $('capacidad').placeholder = moneda === 'USD' ? 'Ej.: 150' : 'Ej.: 60.000';
-    });
+  function cargarPerfil() {
+    GRUPOS.forEach(function (g) { cada('input[name="' + g + '"]', function (x) { x.checked = !!perfil && x.value === perfil[g]; }); });
+    $('ingreso').value = perfil && perfil.ingreso ? perfil.ingreso.toLocaleString('es-AR') : '';
+    $('capacidad').value = perfil && perfil.capacidad ? perfil.capacidad.toLocaleString('es-AR') : '';
+    $('t1').textContent = perfil ? 'Mi perfil' : 'Primero, contanos de vos';
+    $('perfil-bajada').textContent = perfil ? 'Cambiá lo que quieras: tus gastos se recalculan solos.' : 'Lo completás una sola vez y queda guardado en este celular. No hace falta crear una cuenta ni dar datos bancarios.';
+    $('zona-reinicio').hidden = !perfil;
+    $('e-perfil').classList.remove('ver');
+  }
+  function guardarPerfil() {
+    var p = {}, ok = true;
+    GRUPOS.forEach(function (g) { var s = document.querySelector('input[name="' + g + '"]:checked'); if (s) p[g] = s.value; else ok = false; });
+    $('e-perfil').classList.toggle('ver', !ok);
+    if (!ok) return;
+    p.ingreso = numero($('ingreso').value); p.capacidad = numero($('capacidad').value);
+    var primeraVez = !perfil;
+    perfil = p; guardar(CLAVE_PERFIL, perfil);
+    registrar('perfil', datosPerfil());
+    ir('inicio'); pintarInicio();
+    if (primeraVez && !gastos.length) abrirGasto(null);
+  }
+  $('reiniciar').addEventListener('click', function () {
+    if (!confirm('Se borran tu perfil y tus gastos de este celular. ¿Seguimos?')) return;
+    try { localStorage.removeItem(CLAVE_PERFIL); localStorage.removeItem(CLAVE_GASTOS); } catch (e) {}
+    perfil = null; gastos = []; sesion = nuevoId(); guardar(CLAVE_ID, sesion);
+    cargarPerfil(); ir('perfil');
   });
 
-  function calcularYMostrar() {
-    var gasto = $('gasto').value.trim(), monto = numero($('monto').value), meses = parseInt($('mes').value, 10);
-    $('e-gasto').classList.toggle('ver', !gasto);
+  // ---------- Inicio ----------
+  function pintarInicio() {
+    var hay = gastos.length > 0;
+    $('total').hidden = !hay; $('lista-titulo').hidden = !hay; $('total-cap').hidden = true;
+    if (!hay) {
+      $('lista').innerHTML = '<div class="vacio"><b>Todavía no anotaste ningún gasto</b>Agregá un gasto que veas venir, como un viaje o una mudanza, y te decimos cuánto separar por mes.</div>';
+      return;
+    }
+    var tot = { ARS: 0, USD: 0 }, h = '';
+    gastos.slice().sort(function (a, b) { return mesesHasta(a.mes) - mesesHasta(b.mes); }).forEach(function (g) {
+      var r = calcular(g), m = mesesHasta(g.mes);
+      tot[g.moneda] += r.porMes;
+      var cuando = m <= 0 ? 'ya llegó la fecha' : 'en ' + plural(m, 'mes', 'meses');
+      h += '<button type="button" class="gasto-item" data-id="' + g.id + '"><div class="gasto-fila"><div><div class="gasto-nombre">' + esc(g.gasto) + '</div>' +
+        '<div class="gasto-meta">' + fmt(g.monto, g.moneda) + ' · ' + nombreMes(g.mes) + ' (' + cuando + ')</div></div>' +
+        '<div class="gasto-cuota">' + (r.falta ? '<b>' + fmt(r.porMes, g.moneda) + '</b><small>por mes</small>' : '<b>¡Listo!</b><small>ya lo tenés</small>') + '</div></div>' +
+        '<div class="mini-barra"><i style="width:' + Math.min(100, Math.round(g.separado * 100 / g.monto)) + '%"></i></div></button>';
+    });
+    $('lista').innerHTML = h;
+    $('lista-cant').textContent = plural(gastos.length, 'gasto', 'gastos');
+    cada('.gasto-item', function (b) { b.addEventListener('click', function () { abrirPlan(b.getAttribute('data-id')); }); });
+
+    var soloUsd = !tot.ARS && tot.USD;
+    $('total-monto').textContent = fmt(soloUsd ? tot.USD : tot.ARS, soloUsd ? 'USD' : 'ARS');
+    $('total-periodo').textContent = 'por mes';
+    var extra = [];
+    if (tot.ARS && tot.USD) extra.push('y además <b>' + fmt(tot.USD, 'USD') + '</b> por mes para tus gastos en dólares');
+    if (perfil.ingresos !== 'mensual' && perfil.ingresos !== 'variable' && tot.ARS) extra.push('≈ <b>' + fmt(Math.ceil(tot.ARS / FREC[perfil.ingresos].porMes / 100) * 100) + '</b> ' + FREC[perfil.ingresos].texto);
+    if (perfil.ingreso && tot.ARS) extra.push('Es el <b>' + Math.round(tot.ARS * 100 / perfil.ingreso) + ' %</b> de lo que ganás');
+    $('total-extra').innerHTML = extra.join('<br>');
+
+    var cap = $('total-cap');
+    if (perfil.capacidad && tot.ARS) {
+      cap.hidden = false;
+      var nota = tot.USD ? ' (sin contar los gastos en dólares)' : '';
+      if (perfil.capacidad >= tot.ARS) {
+        cap.className = 'aviso-cap ok';
+        cap.innerHTML = ICONOS.check + '<span>Entra en lo que dijiste que podés separar por mes (' + fmt(perfil.capacidad) + ')' + nota +
+          (perfil.capacidad > tot.ARS ? ' y te quedan ' + fmt(perfil.capacidad - tot.ARS) + ' libres.' : '.') + '</span>';
+      } else {
+        cap.className = 'aviso-cap mas';
+        cap.innerHTML = ICONOS.info + '<span>Son ' + fmt(tot.ARS - perfil.capacidad) + ' más por mes de lo que dijiste que podés separar' + nota + '. Probá mover la fecha o el monto de algún gasto.</span>';
+      }
+    }
+  }
+
+  // ---------- Agregar / editar gasto ----------
+  for (var i = 1; i <= 36; i++) { var o = document.createElement('option'); o.value = claveMes(i); o.textContent = mesDesdeHoy(i) + ' · en ' + plural(i, 'mes', 'meses'); $('mes').appendChild(o); }
+  cada('#sugerencias button', function (b) { b.addEventListener('click', function () { $('gasto').value = b.textContent; $('gasto').focus(); }); });
+  function elegirMoneda(m) {
+    moneda = m;
+    cada('.moneda button', function (x) { x.classList.toggle('on', x.getAttribute('data-moneda') === m); });
+    var p = m === 'USD' ? 'US$' : '$';
+    $('pref-monto').textContent = p;
+    cada('.pref-moneda', function (x) { x.textContent = p; });
+    $('monto').placeholder = m === 'USD' ? 'Ej.: 1.500' : 'Ej.: 900.000';
+  }
+  cada('.moneda button', function (b) { b.addEventListener('click', function () { elegirMoneda(b.getAttribute('data-moneda')); }); });
+
+  function abrirGasto(id) {
+    var g = id ? buscar(id) : null;
+    editando = g ? g.id : null;
+    $('t-gasto').textContent = g ? 'Editar gasto' : 'Nuevo gasto';
+    $('gasto').value = g ? g.gasto : '';
+    $('monto').value = g ? g.monto.toLocaleString('es-AR') : '';
+    $('separado').value = g && g.separado ? g.separado.toLocaleString('es-AR') : '';
+    var extraOpt = $('mes').querySelector('option[data-extra]'); if (extraOpt) extraOpt.remove();
+    if (g && !$('mes').querySelector('option[value="' + g.mes + '"]')) {
+      var o = document.createElement('option'); o.value = g.mes; o.textContent = nombreMes(g.mes); o.setAttribute('data-extra', '1');
+      $('mes').insertBefore(o, $('mes').options[1]);
+    }
+    $('mes').value = g ? g.mes : '';
+    elegirMoneda(g ? g.moneda : 'ARS');
+    $('borrar-gasto').hidden = !g;
+    ['e-gasto', 'e-monto', 'e-mes'].forEach(function (e) { $(e).classList.remove('ver'); });
+    $('capa-gasto').classList.add('ver');
+  }
+  function cerrarGasto() { $('capa-gasto').classList.remove('ver'); }
+  $('cancelar-gasto').addEventListener('click', cerrarGasto);
+  $('capa-gasto').addEventListener('click', function (e) { if (e.target === this) cerrarGasto(); });
+  $('guardar-gasto').addEventListener('click', function () {
+    var nombre = $('gasto').value.trim(), monto = numero($('monto').value), mes = $('mes').value;
+    $('e-gasto').classList.toggle('ver', !nombre);
     $('e-monto').classList.toggle('ver', !monto);
-    $('e-mes').classList.toggle('ver', !meses);
-    if (!gasto || !monto || !meses) return;
-    datos = { gasto: gasto, monto: monto, meses: meses, separado: numero($('separado').value), capacidad: numero($('capacidad').value), moneda: moneda };
-    $('r-gasto').textContent = gasto.charAt(0).toLowerCase() + gasto.slice(1);
-    $('s-meses').value = meses; $('s-monto').value = 100;
-    recosVistas = false;
+    $('e-mes').classList.toggle('ver', !mes);
+    if (!nombre || !monto || !mes) return;
+    var g = editando ? buscar(editando) : { id: nuevoId() };
+    g.gasto = nombre; g.monto = monto; g.mes = mes; g.moneda = moneda; g.separado = numero($('separado').value);
+    if (!editando) gastos.push(g);
+    guardar(CLAVE_GASTOS, gastos);
+    var r = calcular(g);
+    registrar('calculo', Object.assign(datosPerfil(), {
+      id_gasto: g.id, gasto: g.gasto, moneda: g.moneda, monto_gasto: g.monto, mes_objetivo: nombreMes(g.mes), meses: r.meses,
+      ya_separado: g.separado, reserva_por_mes: r.porMes, reserva_por_periodo: r.reserva, cantidad_gastos: gastos.length
+    }));
+    cerrarGasto();
+    if (editando && pantalla === 'plan') abrirPlan(g.id); else { ir('inicio'); pintarInicio(); }
+  });
+  $('borrar-gasto').addEventListener('click', function () {
+    if (!confirm('¿Borrar este gasto?')) return;
+    var g = buscar(editando);
+    gastos = gastos.filter(function (x) { return x.id !== editando; });
+    guardar(CLAVE_GASTOS, gastos);
+    registrar('gasto_borrado', { id_gasto: g.id, gasto: g.gasto, cantidad_gastos: gastos.length });
+    cerrarGasto(); ir('inicio'); pintarInicio();
+  });
+  function buscar(id) { return gastos.filter(function (x) { return x.id === id; })[0]; }
+
+  // ---------- Plan de un gasto ----------
+  function abrirPlan(id) {
+    actual = id;
+    var g = buscar(id);
+    $('r-gasto').textContent = g.gasto.charAt(0).toLowerCase() + g.gasto.slice(1);
+    var m = Math.max(mesesHasta(g.mes), 1);
+    $('s-meses').max = Math.max(36, m);
+    $('s-meses').value = m; $('s-monto').value = 100;
     elegirPanel('plan');
-    var r = pintar();
-    registrar('calculo', {
-      edad: perfil.edad, ingresos: perfil.ingresos, ahorro_actual: perfil.ahorro, preferencia: perfil.riesgo, app: perfil.app,
-      gasto: gasto, moneda: moneda, monto_gasto: monto, mes_objetivo: mesDesdeHoy(meses), meses: meses,
-      ya_separado: datos.separado, puede_separar: datos.capacidad || '', reserva_por_periodo: r.reserva
-    });
-    ir(3);
+    pintar();
+    ir('plan');
   }
-
-  // ---------- Pantalla 3 ----------
-  function calcular(monto, meses) {
-    var f = FREC[perfil.ingresos];
-    var falta = Math.max(monto - datos.separado, 0);
-    var periodos = Math.max(Math.round(meses * f.porMes), 1);
-    var redondeo = datos.moneda === 'USD' ? 1 : 100;
-    var reserva = falta > 0 ? Math.ceil(falta / periodos / redondeo) * redondeo : 0;
-    return { falta: falta, reserva: reserva, f: f, monto: monto, meses: meses };
-  }
-
   function pintar() {
-    var monto = Math.round(datos.monto * $('s-monto').value / 100);
+    var g = buscar(actual), m = g.moneda;
+    var monto = Math.round(g.monto * $('s-monto').value / 100);
     var meses = parseInt($('s-meses').value, 10);
-    var r = calcular(monto, meses);
-    var m = datos.moneda;
+    var r = calcular(g, monto, meses);
     $('v-meses').textContent = plural(meses, 'mes', 'meses') + ' · ' + mesDesdeHoy(meses);
     $('v-monto').textContent = fmt(monto, m);
-    $('r-tenes').textContent = fmt(Math.min(datos.separado, monto), m);
+    $('r-tenes').textContent = fmt(Math.min(g.separado, monto), m);
     $('r-falta').textContent = fmt(r.falta, m);
     $('r-meta').textContent = fmt(monto, m);
     $('r-mes').textContent = mesDesdeHoy(meses);
-    $('r-avance').style.width = Math.min(100, Math.round(datos.separado * 100 / monto)) + '%';
-
-    var cap = $('r-cap');
+    $('r-avance').style.width = Math.min(100, Math.round(g.separado * 100 / monto)) + '%';
     if (r.falta === 0) {
       $('r-etiqueta').textContent = '¡Ya llegaste!';
-      $('r-monto').textContent = fmt(datos.separado, m);
+      $('r-monto').textContent = fmt(g.separado, m);
       $('r-periodo').textContent = 'separados para tu gasto';
-      cap.hidden = true;
     } else {
       $('r-etiqueta').textContent = 'Separá';
       $('r-monto').textContent = fmt(r.reserva, m);
       $('r-periodo').textContent = r.f.texto;
-      if (datos.capacidad > 0) {
-        cap.hidden = false;
-        if (datos.capacidad >= r.reserva) {
-          cap.className = 'aviso-cap ok';
-          cap.innerHTML = ICONOS.check + '<span>Entra en lo que dijiste que podés separar (' + fmt(datos.capacidad, m) + ')' +
-            (datos.capacidad > r.reserva ? ' y te quedan ' + fmt(datos.capacidad - r.reserva, m) + ' libres.' : '.') + '</span>';
-        } else {
-          var nec = Math.ceil(r.falta / (datos.capacidad * r.f.porMes));
-          cap.className = 'aviso-cap mas';
-          cap.innerHTML = ICONOS.info + '<span>Son ' + fmt(r.reserva - datos.capacidad, m) + ' más de lo que dijiste que podés separar. Con ' +
-            fmt(datos.capacidad, m) + ' llegarías en ' + plural(nec, 'mes', 'meses') + '. Probá mover el tiempo o el monto.</span>';
-        }
-      } else { cap.hidden = true; }
     }
-    pintarConsejos(r);
-    pintarRecos(r);
-    return r;
+    pintarConsejos(g, r);
+    pintarRecos(g, r);
   }
 
   function consejo(icono, titulo, texto) {
     return '<div class="consejo"><div class="ic">' + ICONOS[icono] + '</div><div><b>' + titulo + '</b><p>' + texto + '</p></div></div>';
   }
-  function pintarConsejos(r) {
+  function pintarConsejos(g, r) {
     var h = '';
-    h += consejo('reloj', 'Separá apenas cobrás', 'No esperes a ver qué sobra a fin de mes: lo primero que hacés al cobrar es mover ' + (r.reserva ? fmt(r.reserva, datos.moneda) : 'tu reserva') + '.');
-    h += consejo('etiqueta', 'Ponele nombre', 'Guardala en un lugar aparte que se llame "' + datos.gasto + '". Así no se mezcla con la plata del día a día.');
+    h += consejo('reloj', 'Separá apenas cobrás', 'No esperes a ver qué sobra a fin de mes: lo primero que hacés al cobrar es mover ' + (r.reserva ? fmt(r.reserva, g.moneda) : 'tu reserva') + '.');
+    h += consejo('etiqueta', 'Ponele nombre', 'Guardala en un lugar aparte que se llame "' + esc(g.gasto) + '". Así no se mezcla con la plata del día a día.');
     if (perfil.ingresos === 'variable') {
       h += consejo('ola', 'En meses buenos, adelantá', 'Como tus ingresos varían, separá más cuando cobres más: eso te cubre los meses flojos.');
     } else if (perfil.ahorro === 'no-sobra') {
@@ -567,13 +720,12 @@
     return '<div class="reco ' + clase + '">' + (tag ? '<span class="reco-tag">' + tag + '</span>' : '') + '<h3>' + titulo + '</h3><p>' + texto + '</p>' +
       (items && items.length ? '<ul><li>' + items.join('</li><li>') + '</li></ul>' : '') + '</div>';
   }
-  function pintarRecos(r) {
+  function pintarRecos(g, r) {
     var meses = r.meses, h = '';
-    var usd = datos.moneda === 'USD';
-    if (usd) {
+    if (g.moneda === 'USD') {
       h += reco('principal', 'Recomendado para vos', 'Comprá dólares de a poco',
         'Tu gasto es en dólares: cada vez que separes, pasá esa parte a dólares. Así no dependés del precio de un solo día.',
-        ['Guardalos en una cuenta en dólares de tu banco o billetera, apartados para "' + datos.gasto + '".',
+        ['Guardalos en una cuenta en dólares de tu banco o billetera, apartados para "' + esc(g.gasto) + '".',
          'Algunas cuentas en dólares también pagan un rendimiento: revisá si la tuya lo ofrece.']);
     } else {
       h += reco('principal', 'Recomendado para vos', 'Que no quede quieta: cuenta remunerada o fondo de liquidez',
@@ -599,29 +751,32 @@
   }
 
   function elegirPanel(nombre) {
-    Array.prototype.forEach.call(document.querySelectorAll('.segmento button'), function (b) { b.classList.toggle('on', b.getAttribute('data-panel') === nombre); });
+    cada('.segmento button', function (b) { b.classList.toggle('on', b.getAttribute('data-panel') === nombre); });
     $('panel-plan').classList.toggle('on', nombre === 'plan');
     $('panel-donde').classList.toggle('on', nombre === 'donde');
   }
-  Array.prototype.forEach.call(document.querySelectorAll('.segmento button'), function (b) {
+  cada('.segmento button', function (b) {
     b.addEventListener('click', function () {
       var n = b.getAttribute('data-panel');
       elegirPanel(n);
-      if (n === 'donde' && !recosVistas) { recosVistas = true; registrar('ver_recomendaciones', { gasto: datos.gasto, moneda: datos.moneda }); }
+      if (n === 'donde' && !recosVistas[actual]) {
+        recosVistas[actual] = true;
+        var g = buscar(actual);
+        registrar('ver_recomendaciones', { id_gasto: g.id, gasto: g.gasto, moneda: g.moneda });
+      }
     });
   });
   $('s-meses').addEventListener('input', pintar);
   $('s-monto').addEventListener('input', pintar);
 
   // ---------- Ver registro / CSV ----------
-  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   $('ver-registro').addEventListener('click', function () {
     var reg = leerRegistro();
     var c = function (ev) { return reg.filter(function (f) { return f.evento === ev; }).length; };
     $('reg-resumen').textContent = 'En este dispositivo: ' + c('apertura') + ' aperturas, ' + c('calculo') + ' cálculos y ' + c('ver_recomendaciones') + ' vistas de recomendaciones.';
     var filas = reg.slice(-25).reverse().map(function (f) {
       return '<tr><td>' + esc(f.fecha) + '<br>' + esc(f.hora) + '</td><td>' + esc(f.evento) + '</td><td>' +
-        (f.evento === 'calculo' ? esc(f.gasto) + ': ' + esc(fmt(f.reserva_por_periodo, f.moneda)) : esc(f.gasto || '')) + '</td></tr>';
+        (f.evento === 'calculo' ? esc(f.gasto) + ': ' + esc(fmt(f.reserva_por_mes || f.reserva_por_periodo, f.moneda)) + ' por mes' : esc(f.gasto || '')) + '</td></tr>';
     }).join('');
     $('reg-tabla').innerHTML = reg.length ? '<table class="tabla"><thead><tr><th>Cuándo</th><th>Evento</th><th>Detalle</th></tr></thead><tbody>' + filas + '</tbody></table>' : '<p class="ayuda">Todavía no hay eventos.</p>';
     $('capa').classList.add('ver');
@@ -639,7 +794,9 @@
     document.body.appendChild(a); a.click(); a.remove();
   });
 
+  // ---------- Arranque ----------
   registrar('apertura');
+  if (perfil) { ir('inicio'); pintarInicio(); } else { cargarPerfil(); ir('perfil'); }
 })();
 </script>
 </body>
