@@ -349,8 +349,10 @@
 
   /* ---------- v3.3: resumen de lo que cobrás + el camino ---------- */
   body { transition: background-color 320ms ease; }
-  /* En el plan de un gasto, toda la pantalla toma el tono de ese gasto. */
-  body.en-plan { --ground: var(--t-bg); }
+  /* En el plan, el fondo queda neutro y el color del gasto va sólo en lo que se destaca:
+     el frasco, la ficha, la cifra de "Separá" y los meses. */
+  #p-plan .cifra b { color: var(--t-ink); }
+  #p-plan .plan-cab h1 { color: var(--t-ink); }
   .resumen .total-cifra span { font-size: 15px; }
   .cobro { position: relative; margin-top: 16px; }
   .cobro-barra { display: flex; gap: 3px; height: 16px; border-radius: 999px; overflow: hidden; background: var(--raised); }
@@ -388,8 +390,8 @@
   .alcancia { display: flex; gap: 14px; height: 380px; margin: 4px 0 16px; }
   .frasco { position: relative; width: 170px; flex: none; }
   .frasco-tapa { position: absolute; left: 42px; right: 42px; top: 0; height: 24px; border-radius: 10px; background: var(--t-dato); opacity: .45; }
-  .frasco-vidrio { position: absolute; left: 0; right: 0; top: 20px; bottom: 0; border-radius: 40px 40px 50px 50px; background: rgba(255,255,255,.7); border: 3px solid #fff; overflow: hidden; }
-  .frasco-vidrio .brillo { position: absolute; left: 16px; top: 22px; width: 12px; height: 150px; border-radius: 999px; background: rgba(255,255,255,.55); }
+  .frasco-vidrio { position: absolute; left: 0; right: 0; top: 20px; bottom: 0; border-radius: 40px 40px 50px 50px; background: var(--surface); border: 3px solid var(--t-bg); overflow: hidden; }
+  .frasco-vidrio .brillo { position: absolute; left: 16px; top: 22px; width: 12px; height: 150px; border-radius: 999px; background: rgba(255,255,255,.45); }
   .capa-mes { position: absolute; left: 0; right: 0; background: var(--t-dato); border-top: 2px solid rgba(255,255,255,.85); transform-origin: bottom center; animation: llenar 600ms var(--ease-out) both; }
   @keyframes llenar { from { transform: scaleY(0); } }
   .ola-caja { position: absolute; left: 0; right: 0; height: 0; }
@@ -904,7 +906,7 @@
     if (nombre === 'perfil') { b1.textContent = perfil ? 'Guardar cambios' : 'Continuar'; b2.textContent = 'Cancelar'; b2.hidden = !perfil; }
     else if (nombre === 'inicio') { b1.textContent = 'Agregar gasto'; b2.hidden = true; }
     else { b1.textContent = 'Editar gasto'; b2.textContent = 'Volver'; b2.hidden = false; }
-    // En el plan, toda la pantalla toma el tono del gasto.
+    // En el plan, el tono del gasto queda disponible para los detalles (frasco, ficha, cifra).
     var gp = nombre === 'plan' && actual ? buscar(actual) : null;
     document.body.className = gp ? 'en-plan t' + gp.tono : '';
     window.scrollTo(0, 0);
