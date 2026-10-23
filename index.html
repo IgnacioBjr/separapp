@@ -279,6 +279,30 @@
   .tasas div + div { border-top: 1px solid var(--rule); }
   .tasas span { min-width: 0; overflow-wrap: anywhere; }
   .tasas b { white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
+  /* v3.7: historial de meses y dónde la guardó */
+  .historial h2, .lugar h2 { margin-bottom: 2px; }
+  .hist-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .hist-cab span { color: var(--muted); font-size: var(--fs-small); white-space: nowrap; }
+  .hist { margin-top: 10px; }
+  .hist-fila { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; padding: 11px 0; border: 0; border-top: 1px solid var(--rule); background: transparent; text-align: left; cursor: pointer; }
+  .hist-fila:first-child { border-top: 0; }
+  .hist-fila > span { min-width: 0; }
+  .hist-fila b { display: block; font-weight: 600; }
+  .hist-fila small { display: block; font-size: 13px; color: var(--muted); }
+  .hist-fila .hist-monto { text-align: right; white-space: nowrap; display: flex; align-items: center; gap: 8px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .hist-fila .hist-monto svg { width: 16px; height: 16px; color: var(--muted); }
+  .hist-fila.fijo { cursor: default; }
+  .hist-fila:not(.fijo):active { transform: scale(0.99); }
+  .lugar-rinde { margin-top: 12px; display: grid; gap: 8px; }
+  .lugar-rinde div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 15px; }
+  .lugar-rinde span { color: var(--muted); }
+  .lugar-rinde b { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .lugar-rinde b.gana { color: var(--positive); }
+  .lugar > p { margin: 4px 0 0; color: var(--muted); font-size: 15px; }
+  .entrada .sufijo { padding-right: 14px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+  .mes.hecho, .mes.corto, .mes.nada { cursor: pointer; }
+  #lugar-opciones .chip span { justify-content: space-between; gap: 12px; }
+  #lugar-opciones .chip em { font-style: normal; font-weight: 700; white-space: nowrap; }
   .fuente { font-size: 11px; line-height: 1.45; color: var(--muted); margin: 12px 4px 0; }
   .fuente a { color: inherit; text-underline-offset: 2px; }
 
@@ -595,6 +619,8 @@
             <div class="meses" id="meses"></div>
           </div>
           <div class="panel aporte" id="aporte-panel" aria-live="polite" hidden></div>
+          <div class="panel historial" id="historial-panel"></div>
+          <div class="panel lugar" id="lugar-panel"></div>
         </div>
 
         <div>
@@ -692,11 +718,22 @@
   <div class="hoja">
     <div class="asa" aria-hidden="true"></div>
     <h2 id="t-aporte">¿Cuánto separaste?</h2>
+    <div class="campo" id="campo-aporte-mes" hidden>
+      <label for="aporte-mes">¿De qué mes?</label>
+      <div class="entrada"><select id="aporte-mes"></select></div>
+    </div>
+    <div class="campo" id="campo-modo" hidden>
+      <p class="pregunta-titulo" id="modo-titulo"></p>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="modo-aporte" value="total" checked><span>Corregir el total</span></label>
+        <label class="chip"><input type="radio" name="modo-aporte" value="sumar"><span id="modo-sumar">Sumarle algo</span></label>
+      </div>
+    </div>
     <div class="campo">
       <label for="aporte" id="aporte-sub"></label>
       <div class="entrada"><span class="prefijo" id="pref-aporte">$</span><input id="aporte" type="text" inputmode="numeric" placeholder="0" autocomplete="off" enterkeyhint="done"></div>
       <div class="sugerencias" id="aporte-sugerencias"></div>
-      <p class="ayuda">Anotá lo que separaste de verdad, sea más o menos. Con eso recalculamos los meses que quedan.</p>
+      <p class="ayuda" id="aporte-ayuda">Anotá lo que separaste de verdad, sea más o menos. Con eso recalculamos los meses que quedan.</p>
       <div class="error" id="e-aporte">Poné cuánto separaste. Si no pudiste, poné 0.</div>
     </div>
     <div class="hoja-btns">
@@ -704,6 +741,33 @@
       <button class="btn btn-principal" id="guardar-aporte">Guardar</button>
     </div>
     <p style="margin:12px 0 0"><button type="button" class="link-btn peligro" id="borrar-aporte" hidden>Borrar lo anotado</button></p>
+  </div>
+</div>
+
+<!-- Dónde guardó la plata de un gasto -->
+<div class="capa" id="capa-lugar" role="dialog" aria-modal="true" aria-labelledby="t-lugar">
+  <div class="hoja">
+    <div class="asa" aria-hidden="true"></div>
+    <h2 id="t-lugar">¿Dónde la guardaste?</h2>
+    <div class="campo">
+      <p class="pregunta-titulo" id="lugar-sub"></p>
+      <div class="chips bloque" id="lugar-opciones"></div>
+    </div>
+    <div class="campo">
+      <label for="lugar-nombre">Nombre</label>
+      <div class="entrada"><input id="lugar-nombre" type="text" maxlength="50" placeholder="Ej.: Fima Premium" autocomplete="off" enterkeyhint="next"></div>
+    </div>
+    <div class="campo">
+      <label for="lugar-tna">¿Cuánto rinde por año?</label>
+      <div class="entrada"><input id="lugar-tna" type="text" inputmode="decimal" placeholder="Ej.: 2,5" autocomplete="off" enterkeyhint="done"><span class="sufijo">% anual</span></div>
+      <p class="ayuda">En tu app figura como TNA. Si no rinde nada, poné 0.</p>
+      <div class="error" id="e-lugar">Poné un nombre y cuánto rinde (puede ser 0).</div>
+    </div>
+    <div class="hoja-btns">
+      <button class="btn btn-secundario" id="cancelar-lugar">Cancelar</button>
+      <button class="btn btn-principal" id="guardar-lugar">Guardar</button>
+    </div>
+    <p style="margin:12px 0 0"><button type="button" class="link-btn peligro" id="borrar-lugar" hidden>Sacar dónde la guardé</button></p>
   </div>
 </div>
 
@@ -757,7 +821,7 @@
     if (!g.aportes) g.aportes = {};
     if (!g.creado) g.creado = claveMes(0);
   });
-  var actual = null, editando = null, moneda = 'ARS', pantalla = '', recosVistas = {}, aporteMes = null, aporteSug = 0;
+  var aporteAntes = null, actual = null, editando = null, moneda = 'ARS', pantalla = '', recosVistas = {}, aporteMes = null, aporteSug = 0;
 
   function fmt(n, mon) { return (mon === 'USD' ? 'US$' : '$') + Math.round(n).toLocaleString('es-AR'); }
   function numero(v) { var n = parseInt(String(v).replace(/\D/g, ''), 10); return isNaN(n) ? 0 : n; }
@@ -801,7 +865,7 @@
   }
 
   // ---------- Registro ----------
-  var COLUMNAS = ['id_sesion','fecha','hora','evento','edad','ingresos','ingreso_mensual','puede_separar_mes','ahorro_actual','preferencia','app','id_gasto','gasto','moneda','monto_gasto','mes_objetivo','meses','ya_separado','reserva_por_mes','reserva_por_periodo','cantidad_gastos','mes_aporte','aporte','aporte_sugerido'];
+  var COLUMNAS = ['id_sesion','fecha','hora','evento','edad','ingresos','ingreso_mensual','puede_separar_mes','ahorro_actual','preferencia','app','id_gasto','gasto','moneda','monto_gasto','mes_objetivo','meses','ya_separado','reserva_por_mes','reserva_por_periodo','cantidad_gastos','mes_aporte','aporte','aporte_sugerido','lugar','tasa_anual'];
   function leerRegistro() { return leer(CLAVE, []); }
   function registrar(evento, extra) {
     var a = new Date();
@@ -984,6 +1048,7 @@
     if ($('capa-gasto').classList.contains('ver')) cerrarCapa('capa-gasto');
     if ($('capa').classList.contains('ver')) cerrarCapa('capa');
     if ($('capa-aporte').classList.contains('ver')) cerrarCapa('capa-aporte');
+    if ($('capa-lugar').classList.contains('ver')) cerrarCapa('capa-lugar');
   });
 
   function abrirGasto(id) {
@@ -1083,6 +1148,8 @@
     pintarAlcancia(g, monto, meses);
     pintarMeses(g, r, m);
     pintarAporte(g);
+    pintarHistorial(g);
+    pintarLugar(g, r);
     pintarConsejos(g, r);
     pintarRecos(g, r);
   }
@@ -1144,7 +1211,7 @@
     var demora = function () { return anim ? ' style="animation-delay:' + (p++ * 30) + 'ms"' : ' style="animation:none"'; };
     var h = mesesAnotados(g).map(function (k) {
       var a = g.aportes[k], clase = !a.monto ? 'nada' : a.monto < a.sugerido ? 'corto' : 'hecho';
-      return '<div class="mes ' + clase + '"' + demora() + '><span>' + mesCortoDe(k) + ' ✓</span><b>' + fmt(a.monto, m) + '</b></div>';
+      return '<div class="mes ' + clase + '" data-mes="' + k + '" role="button" tabindex="0" aria-label="Editar lo de ' + nombreMes(k) + '"' + demora() + '><span>' + mesCortoDe(k) + ' ✓</span><b>' + fmt(a.monto, m) + '</b></div>';
     }).join('');
     if (r.falta > 0) {
       var idx = [];
@@ -1188,15 +1255,37 @@
     if (accion === 'no') guardarAporte(pendiente(g), 0, calcular(g).porMes);
     else abrirAporte(accion === 'cambiar' ? claveMes(0) : pendiente(g));
   });
-  function abrirAporte(clave) {
-    var g = buscar(actual), a = g.aportes[clave];
+  // Meses que todavía puede anotar a mano: hasta 2 años para atrás y hasta hoy (o hasta la fecha del gasto).
+  function mesesLibres(g) {
+    var out = [], hasta = Math.min(0, mesesHasta(g.mes));
+    for (var n = hasta; n >= -24; n--) { var k = claveMes(n); if (!g.aportes[k]) out.push(k); }
+    return out;
+  }
+  function abrirAporte(clave, elegir) {
+    var g = buscar(actual), a = clave && g.aportes[clave];
+    if (elegir) {
+      var libres = mesesLibres(g); if (!libres.length) return;
+      clave = libres[0];
+      $('aporte-mes').innerHTML = libres.map(function (k) { return '<option value="' + k + '">' + nombreMes(k).charAt(0).toUpperCase() + nombreMes(k).slice(1) + '</option>'; }).join('');
+    }
+    $('campo-aporte-mes').hidden = !elegir;
     aporteMes = clave;
-    aporteSug = a ? a.sugerido : calcular(g).porMes;
-    $('t-aporte').textContent = '¿Cuánto separaste en ' + soloMes(clave) + '?';
-    $('aporte-sub').textContent = 'Para ' + g.gasto + '. Te tocaba ' + fmt(aporteSug, g.moneda) + '.';
+    // Un mes cargado a mano (para atrás) no tenía cuota sugerida.
+    aporteSug = a ? a.sugerido : elegir ? 0 : calcular(g).porMes;
+    aporteAntes = a ? a.monto : null;
+    $('campo-modo').hidden = !a || !a.monto;
+    if (a) {
+      $('modo-titulo').textContent = 'Anotaste ' + fmt(a.monto, g.moneda) + '. ¿Qué querés hacer?';
+      $('modo-sumar').textContent = 'Sumarle a los ' + fmt(a.monto, g.moneda);
+      document.querySelector('input[name="modo-aporte"][value="total"]').checked = true;
+    }
+    $('t-aporte').textContent = elegir ? 'Anotar otro mes' : a ? 'Lo de ' + soloMes(clave) : '¿Cuánto separaste en ' + soloMes(clave) + '?';
+    $('aporte-sub').textContent = a ? 'Total del mes' : 'Para ' + g.gasto + (aporteSug ? '. Te tocaba ' + fmt(aporteSug, g.moneda) + '.' : '.');
+    $('aporte-ayuda').textContent = a ? 'Si después separaste más (o te equivocaste), corregí el total o sumale lo que agregaste. Los meses que quedan se recalculan.'
+      : 'Anotá lo que separaste de verdad, sea más o menos. Con eso recalculamos los meses que quedan.';
     $('pref-aporte').textContent = g.moneda === 'USD' ? 'US$' : '$';
     $('aporte').value = a ? a.monto.toLocaleString('es-AR') : '';
-    $('aporte-sugerencias').innerHTML = (aporteSug ? '<button type="button" data-v="' + aporteSug + '">Lo que tocaba: ' + fmt(aporteSug, g.moneda) + '</button>' : '') +
+    $('aporte-sugerencias').innerHTML = a ? '' : (aporteSug ? '<button type="button" data-v="' + aporteSug + '">Lo que tocaba: ' + fmt(aporteSug, g.moneda) + '</button>' : '') +
       '<button type="button" data-v="0">No pude: ' + fmt(0, g.moneda) + '</button>';
     $('borrar-aporte').hidden = !a;
     $('e-aporte').classList.remove('ver');
@@ -1208,12 +1297,22 @@
     $('aporte').value = v.toLocaleString('es-AR');
     $('aporte').focus();
   });
+  $('aporte-mes').addEventListener('change', function () { aporteMes = this.value; });
+  cada('input[name="modo-aporte"]', function (x) {
+    x.addEventListener('change', function () {
+      var g = buscar(actual), sumar = x.value === 'sumar' && x.checked;
+      $('aporte-sub').textContent = sumar ? '¿Cuánto le sumás?' : 'Total del mes';
+      $('aporte').value = sumar ? '' : aporteAntes.toLocaleString('es-AR');
+      $('aporte').focus();
+    });
+  });
   function guardarAporte(clave, monto, sugerido) {
-    var g = buscar(actual);
+    var g = buscar(actual), antes = g.aportes[clave];
     g.aportes[clave] = { monto: monto, sugerido: sugerido };
+    if (antes) g.aportes[clave].editado = new Date().toISOString().slice(0, 10);
     guardar(CLAVE_GASTOS, gastos);
     var r = calcular(g);
-    registrar('aporte', Object.assign(datosPerfil(), {
+    registrar(antes ? 'aporte_editado' : 'aporte', Object.assign(datosPerfil(), {
       id_gasto: g.id, gasto: g.gasto, moneda: g.moneda, monto_gasto: g.monto, mes_objetivo: nombreMes(g.mes), meses: r.meses,
       ya_separado: tenes(g), reserva_por_mes: r.porMes, reserva_por_periodo: r.reserva, cantidad_gastos: gastos.length,
       mes_aporte: nombreMes(clave), aporte: monto, aporte_sugerido: sugerido
@@ -1225,7 +1324,8 @@
     mostrarError('e-aporte', vacio);
     if (vacio) return;
     cerrarCapa('capa-aporte');
-    guardarAporte(aporteMes, numero($('aporte').value), aporteSug);
+    var sumar = !$('campo-modo').hidden && document.querySelector('input[name="modo-aporte"]:checked').value === 'sumar';
+    guardarAporte(aporteMes, numero($('aporte').value) + (sumar ? aporteAntes : 0), aporteSug);
   });
   $('borrar-aporte').addEventListener('click', function () {
     var g = buscar(actual);
@@ -1237,6 +1337,132 @@
   });
   $('cancelar-aporte').addEventListener('click', function () { cerrarCapa('capa-aporte'); });
   $('capa-aporte').addEventListener('click', function (e) { if (e.target === this) cerrarCapa('capa-aporte'); });
+
+  // ---------- Lo que separaste, mes por mes ----------
+  var LAPIZ = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5l3 3L6 13H3v-3z"/></svg>';
+  function pintarHistorial(g) {
+    var m = g.moneda, ks = mesesAnotados(g).reverse(), h = '';
+    h += '<div class="hist-cab"><h2>Lo que separaste</h2><span>' + fmt(tenes(g), m) + ' en total</span></div>';
+    if (ks.length || g.separado) {
+      h += '<div class="hist">' + ks.map(function (k) {
+        var a = g.aportes[k], nota = !a.monto ? 'No pudiste' : a.editado ? 'Corregido' : a.sugerido ? 'Te tocaba ' + fmt(a.sugerido, m) : '';
+        return '<button type="button" class="hist-fila" data-mes="' + k + '" aria-label="Editar lo de ' + nombreMes(k) + '"><span><b>' + nombreMes(k).charAt(0).toUpperCase() + nombreMes(k).slice(1) + '</b>' +
+          (nota ? '<small>' + nota + '</small>' : '') + '</span><span class="hist-monto">' + fmt(a.monto, m) + LAPIZ + '</span></button>';
+      }).join('') +
+      (g.separado ? '<div class="hist-fila fijo"><span><b>Al empezar</b><small>Se cambia en "Editar gasto"</small></span><span class="hist-monto">' + fmt(g.separado, m) + '</span></div>' : '') + '</div>';
+    } else {
+      h += '<p class="ayuda">Todavía no anotaste ningún mes. Cada vez que separes, anotalo acá.</p>';
+    }
+    if (mesesLibres(g).length) h += '<button type="button" class="link-btn" data-accion="otro">+ Anotar otro mes</button>';
+    $('historial-panel').innerHTML = h;
+  }
+  $('historial-panel').addEventListener('click', function (e) {
+    var f = e.target.closest('[data-mes]'), b = e.target.closest('[data-accion="otro"]');
+    if (f) abrirAporte(f.getAttribute('data-mes'));
+    else if (b) abrirAporte(null, true);
+  });
+  // En "Mes a mes", tocar un mes ya anotado también lo abre para editar.
+  $('meses').addEventListener('click', function (e) { var c = e.target.closest('[data-mes]'); if (c) abrirAporte(c.getAttribute('data-mes')); });
+
+  // ---------- Dónde guardó la plata y cuánto le rinde ----------
+  // Cada depósito rinde desde mediados de su mes (lo de "al empezar", desde que creó el gasto) hasta hoy.
+  function fechaDeposito(k) { var p = k.split('-'); return new Date(+p[0], +p[1] - 1, 15); }
+  function rindioHastaHoy(g) {
+    var tna = (g.lugar && g.lugar.tna) || 0; if (!tna) return 0;
+    var hoy = new Date(), total = 0;
+    var suma = function (monto, f) { var d = Math.max((hoy - f) / 864e5, 0); total += monto * (Math.pow(1 + tna / 365, d) - 1); };
+    if (g.separado) suma(g.separado, fechaDeposito(g.creado));
+    mesesAnotados(g).forEach(function (k) { if (g.aportes[k].monto) suma(g.aportes[k].monto, fechaDeposito(k)); });
+    return total;
+  }
+  function pintarLugar(g, r) {
+    var m = g.moneda, l = g.lugar, h = '<h2>¿Dónde la tenés?</h2>';
+    if (!l) {
+      h += '<p>Anotá dónde guardaste esta plata (un fondo, un plazo fijo, la cuenta) y te mostramos cuánto te rinde.</p>' +
+        '<button type="button" class="link-btn" data-accion="lugar">Anotar dónde la guardé</button>';
+    } else {
+      var ya = rindioHastaHoy(g), futuro = l.tna ? ganancia(g, r, l.tna) : 0;
+      h += '<p>' + esc(l.nombre.replace(/\s*-\s*clase/i, ' · clase')) + ' · ' + (l.tna ? pct(l.tna) : 'no rinde') + '</p>';
+      if (l.tna) {
+        h += '<div class="lugar-rinde">' +
+          '<div><span>Te rindió hasta hoy</span><b class="gana">+' + fmt(ya, m) + '</b></div>' +
+          (r.falta ? '<div><span>Hasta ' + mesDesdeHoy(r.meses) + ', si seguís así</span><b class="gana">+' + fmt(ya + futuro, m) + '</b></div>' : '') +
+          '<div><span>Con lo que rindió, tenés</span><b>' + fmt(tenes(g) + ya, m) + '</b></div></div>' +
+          '<p class="ayuda">Estimado con esa tasa, desde mediados de cada mes que anotaste. No cambia lo que te toca separar; si querés contarlo, anotalo como parte de un mes.</p>';
+      } else {
+        h += '<p class="ayuda">Así no pierde valor de golpe, pero tampoco rinde. En "Dónde guardarla" tenés opciones que rinden.</p>';
+      }
+      h += '<button type="button" class="link-btn" data-accion="lugar">Cambiar dónde la guardé</button>';
+    }
+    $('lugar-panel').innerHTML = h;
+  }
+  $('lugar-panel').addEventListener('click', function (e) { if (e.target.closest('[data-accion="lugar"]')) abrirLugar(); });
+
+  var opcionesLugar = [];
+  function armarOpcionesLugar(g) {
+    var usd = g.moneda === 'USD', mk = mercado, o = [];
+    if (mk) {
+      var miFondo = perfil.app === 'Mercado Pago' ? /^mercado fondo/i : perfil.app === 'Ualá' ? /^ualintec ahorro pesos/i : null;
+      var propio = !usd && miFondo && mk.liquidez.filter(function (f) { return miFondo.test(f.fondo); })[0];
+      if (propio) o.push({ nombre: propio.fondo, tna: propio.tna, tipo: 'fondo' });
+      deAUno(mk.liquidez, 4, function (f) { return f.usd === usd && (!propio || sinClase(f.fondo) !== sinClase(propio.fondo)); })
+        .forEach(function (f) { o.push({ nombre: f.fondo, tna: f.tna, tipo: 'fondo' }); });
+      if (!usd) mk.plazoFijo.slice(0, 3).concat(mk.plazoFijo.filter(function (x) { return /naci[oó]n/i.test(x.entidad); }).slice(0, 1))
+        .forEach(function (x) { o.push({ nombre: 'Plazo fijo · ' + nombreEntidad(x.entidad), tna: x.tna, tipo: 'plazo' }); });
+      deAUno(mk.rentaFija, 2, function (f) { return f.usd === usd && f.horizonte === 'corto' && !/mix/i.test(f.fondo); })
+        .forEach(function (f) { o.push({ nombre: f.fondo, tna: f.tna, tipo: 'fondo' }); });
+    }
+    o.push({ nombre: usd ? 'Dólares en la cuenta, sin rendimiento' : 'En la cuenta, sin rendimiento', tna: 0, tipo: 'cuenta' });
+    o.push({ nombre: '', tna: null, tipo: 'otro' });
+    return o;
+  }
+  function pintarOpcionesLugar(g) {
+    opcionesLugar = armarOpcionesLugar(g);
+    var l = g.lugar;
+    $('lugar-opciones').innerHTML = opcionesLugar.map(function (op, i) {
+      var marcado = l && (op.nombre === l.nombre || (op.tipo === 'otro' && !opcionesLugar.some(function (x) { return x.nombre === l.nombre; })));
+      return '<label class="chip"><input type="radio" name="lugar" value="' + i + '"' + (marcado ? ' checked' : '') + '><span>' +
+        (op.tipo === 'otro' ? 'Otro lugar (lo escribo yo)' : esc(op.nombre.replace(/\s*-\s*clase/i, ' · clase')) + '<em>' + (op.tna ? pct(op.tna).replace(' anual', '') : '0%') + '</em>') + '</span></label>';
+    }).join('');
+  }
+  function abrirLugar() {
+    var g = buscar(actual), l = g.lugar;
+    $('lugar-sub').textContent = 'Para ' + g.gasto + '. Elegí uno o escribí el tuyo.' + (mercado ? ' Tasas del ' + mercado.fecha.split('-').reverse().join('/') + '.' : '');
+    pintarOpcionesLugar(g);
+    if (!mercado) cargarMercado().then(function (mk) { if (mk && $('capa-lugar').classList.contains('ver')) { pintarOpcionesLugar(g); $('lugar-sub').textContent = 'Para ' + g.gasto + '. Elegí uno o escribí el tuyo. Tasas del ' + mk.fecha.split('-').reverse().join('/') + '.'; } });
+    $('lugar-nombre').value = l ? l.nombre : '';
+    $('lugar-tna').value = l ? String(+(l.tna * 100).toFixed(2)).replace('.', ',') : '';
+    $('borrar-lugar').hidden = !l;
+    $('e-lugar').classList.remove('ver');
+    abrirCapa('capa-lugar');
+  }
+  $('lugar-opciones').addEventListener('change', function (e) {
+    var op = opcionesLugar[+e.target.value]; if (!op) return;
+    if (op.tipo === 'otro') { $('lugar-nombre').value = ''; $('lugar-tna').value = ''; $('lugar-nombre').focus(); return; }
+    $('lugar-nombre').value = op.nombre;
+    $('lugar-tna').value = String(+(op.tna * 100).toFixed(2)).replace('.', ',');
+  });
+  function tasaEscrita(v) { var n = parseFloat(String(v).replace(/[^\d,.-]/g, '').replace(',', '.')); return isNaN(n) ? null : n / 100; }
+  $('guardar-lugar').addEventListener('click', function () {
+    var g = buscar(actual), nombre = $('lugar-nombre').value.trim(), tna = tasaEscrita($('lugar-tna').value);
+    var mal = !nombre || tna == null || tna < 0 || tna > 3;
+    mostrarError('e-lugar', mal);
+    if (mal) return;
+    g.lugar = { nombre: nombre, tna: tna, desde: claveMes(0) };
+    guardar(CLAVE_GASTOS, gastos);
+    registrar('lugar', { id_gasto: g.id, gasto: g.gasto, moneda: g.moneda, lugar: nombre, tasa_anual: (tna * 100).toFixed(2) });
+    cerrarCapa('capa-lugar');
+    pintar();
+  });
+  $('borrar-lugar').addEventListener('click', function () {
+    var g = buscar(actual); delete g.lugar;
+    guardar(CLAVE_GASTOS, gastos);
+    registrar('lugar', { id_gasto: g.id, gasto: g.gasto, moneda: g.moneda, lugar: '(sin lugar)', tasa_anual: '' });
+    cerrarCapa('capa-lugar');
+    pintar();
+  });
+  $('cancelar-lugar').addEventListener('click', function () { cerrarCapa('capa-lugar'); });
+  $('capa-lugar').addEventListener('click', function (e) { if (e.target === this) cerrarCapa('capa-lugar'); });
 
   function consejo(icono, titulo, texto) {
     return '<div class="consejo">' + ICONOS[icono] + '<div><b>' + titulo + '</b><p>' + texto + '</p></div></div>';
@@ -1410,8 +1636,10 @@
     h += '<p class="fuente">' + (mk
       ? 'Datos del ' + mk.fecha.split('-').reverse().join('/') + ': plazo fijo del BCRA y fondos de CAFCI, vía <a href="https://argentinadatos.com" target="_blank" rel="noopener">ArgentinaDatos</a>; dólar vía <a href="https://dolarapi.com" target="_blank" rel="noopener">DolarApi</a>. En los fondos, lo que rindieron el último día hábil pasado a anual. Las ganancias son estimadas con la tasa de hoy.'
       : mercadoFallo ? 'Sin conexión: recomendaciones generales, sin las tasas del día.' : 'Cargando las tasas del día…') + '</p>';
+    h += '<p style="margin:10px 4px 0"><button type="button" class="link-btn" data-accion="lugar">' + (g.lugar ? 'Cambiar dónde la guardé' : '¿Ya la guardaste? Anotá dónde y te calculamos cuánto rinde') + '</button></p>';
     $('recos').innerHTML = h;
   }
+  $('recos').addEventListener('click', function (e) { if (e.target.closest('[data-accion="lugar"]')) abrirLugar(); });
 
   function elegirPanel(nombre) {
     $('segmento').classList.toggle('donde', nombre === 'donde');
