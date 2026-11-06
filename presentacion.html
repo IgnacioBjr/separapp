@@ -84,7 +84,7 @@ h2.t .serif{font-weight:400;letter-spacing:-.01em}
 /* 3 · personas */
 #s3{justify-content:center}
 .people{display:flex;gap:34px;margin:70px 0 60px}
-.p{width:118px;height:220px;opacity:0;transform:translateY(40px);transition:all .8s var(--ease);transition-delay:calc(.3s + var(--i)*.08s)}
+.p{width:118px;height:220px;opacity:0;transform:translateY(40px);transition:opacity .8s var(--ease),transform .8s var(--ease);transition-delay:calc(.3s + var(--i)*.08s)}
 .on .p{opacity:1;transform:none}
 .p svg{width:100%;height:100%;fill:#2b3a31;transition:fill .8s,filter .8s;transition-delay:1.9s}
 .on .p.lit svg{fill:var(--amber);filter:drop-shadow(0 0 24px rgba(240,166,74,.6))}
@@ -332,6 +332,9 @@ h2.t .serif{font-weight:400;letter-spacing:-.01em}
 .why .k{position:absolute;right:26px;top:16px;font:400 54px 'Instrument Serif';font-style:italic;color:#e3c79b}
 .why b{display:block;font-size:29px;line-height:1.2;margin-bottom:10px;padding-right:40px}
 .why p{font-size:22px;line-height:1.45;color:#56625a}
+
+/* al salir de una diapositiva, nada queda a mitad de animación */
+.slide:not(.on),.slide:not(.on) *,.slide:not(.on) *::after{transition:none!important}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
