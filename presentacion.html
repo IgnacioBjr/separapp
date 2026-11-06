@@ -336,6 +336,132 @@ h2.t .serif{font-weight:400;letter-spacing:-.01em}
 /* al salir de una diapositiva, nada queda a mitad de animación */
 .slide:not(.on),.slide:not(.on) *,.slide:not(.on) *::after{transition:none!important}
 
+
+/* ===== Historia (Franco): 6 diapositivas ===== */
+.hx{padding:0}
+.hx .corner{z-index:7}
+/* persona */
+.hx-person{position:absolute;width:380px}
+.hx-person svg{width:100%;height:auto;display:block;overflow:visible}
+.hx-person{opacity:0;transform:translateY(50px);transition:opacity .9s var(--ease),transform 1.1s var(--ease);transition-delay:var(--d,.2s)}
+.on .hx-person{opacity:1;transform:none}
+.on .hx-person.bob svg{animation:hxbob 3.4s ease-in-out infinite 1.4s}
+@keyframes hxbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+/* burbuja de pensamiento */
+.hx-dot{position:absolute;border-radius:50%;background:var(--paper);transform:scale(0);transition:transform .6s cubic-bezier(.3,1.6,.5,1)}
+.on .hx-dot{transform:scale(1)}
+.hx-cloud{position:absolute;left:520px;top:80px;width:600px;height:330px;transform:scale(.2);opacity:0;transform-origin:10% 90%;transition:transform 1s cubic-bezier(.3,1.35,.5,1) 1.15s,opacity .5s 1.15s}
+.on .hx-cloud{transform:none;opacity:1}
+.hx-cloud svg{width:100%;height:100%;overflow:visible}
+.hx-ico{opacity:0;transition:opacity .6s 1.7s}
+.on .hx-ico{opacity:1;animation:hxfloat 3s ease-in-out infinite;animation-delay:calc(1.8s + var(--i)*.4s)}
+@keyframes hxfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.hx-ico{transform-box:fill-box;transform-origin:center}
+.hx-idea{position:absolute;left:1180px;top:330px;width:640px}
+.hx-big{font-size:104px;line-height:1.02;color:#f4f2ea}
+.hx-sub{font:600 40px Manrope;color:var(--amber);margin-top:34px}
+/* línea de tiempo */
+.hx-tl{position:absolute;left:180px;right:180px;height:90px}
+.hx-tl .ln,.hx-tl .pg{position:absolute;left:0;top:12px;height:4px;border-radius:4px}
+.hx-tl .ln{right:0;background:#26372d}
+.hx-tl .pg{width:0;background:linear-gradient(90deg,var(--sage),var(--amber))}
+.hx-tl .mk{position:absolute;top:0;left:0;width:28px;height:28px;margin-left:-14px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 10px rgba(240,166,74,.18),0 0 30px rgba(240,166,74,.5);opacity:0}
+.hx-m{position:absolute;top:0;transform:translateX(-50%);text-align:center;width:120px;margin-left:-60px;transform:none}
+.hx-m i{display:block;width:16px;height:16px;border-radius:50%;background:#31453a;margin:6px auto 16px}
+.hx-m b{font:700 24px Manrope;letter-spacing:.14em;text-transform:uppercase;color:#5f7166}
+.hx-m.now b{color:var(--mint)} .hx-m.now i{background:var(--mint);box-shadow:0 0 0 8px rgba(207,224,200,.16)}
+.hx-m.goal b{color:var(--amber)} .hx-m.goal i{background:var(--amber);box-shadow:0 0 0 8px rgba(240,166,74,.18)}
+.hx-m em{position:absolute;left:50%;top:-46px;transform:translateX(-50%);font:700 18px Manrope;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;font-style:normal;color:var(--mint)}
+.hx-m.goal em{color:var(--amber)}
+.hx-tl .hx-m{opacity:0;transform:translateY(16px);transition:opacity .7s var(--ease),transform .8s var(--ease);transition-delay:calc(var(--d,.3s) + var(--i)*.05s)}
+.on .hx-tl .hx-m{opacity:1;transform:none}
+.hx-tl .ln{transform:scaleX(0);transform-origin:left;transition:transform 1.4s var(--ease) var(--d,.2s)}
+.on .hx-tl .ln{transform:none}
+/* alcancía */
+.hx-jar{position:absolute;width:150px;height:200px}
+.hx-jar .lid{position:absolute;left:24px;right:24px;top:0;height:22px;border-radius:8px;background:#5d7563}
+.hx-jar .bd{position:absolute;left:0;right:0;top:26px;bottom:0;border:5px solid #5d7563;border-radius:26px 26px 40px 40px;overflow:hidden}
+.hx-jar .lv{position:absolute;left:0;right:0;bottom:0;height:var(--lv,0%);background:linear-gradient(180deg,#f3b765,#c9792a)}
+.hx-jar .slot{position:absolute;left:50%;top:7px;width:44px;height:6px;margin-left:-22px;border-radius:3px;background:#0b1410}
+.hx-jar small{position:absolute;left:50%;bottom:-48px;transform:translateX(-50%);white-space:nowrap;font:700 20px Manrope;letter-spacing:.14em;text-transform:uppercase;color:#8d9a90}
+/* 2 · el plan en la cabeza */
+.hx-head{position:absolute;left:180px;top:150px;width:1560px}
+.hx-head .hx-big{font-size:110px}
+.hx-head .hx-sub{color:#aab5ab;font-weight:500}
+.hx-goal{position:absolute;left:180px;top:690px;display:flex;align-items:center;gap:60px;padding:40px 56px;border-radius:34px;background:linear-gradient(160deg,#16261e,#0f1a15);border:1px solid #24362c}
+.hx-goal h4{font-size:50px;font-weight:800;letter-spacing:-.02em;margin-bottom:18px}
+.hx-goal ul{list-style:none;display:grid;gap:12px}
+.hx-goal li{display:flex;gap:22px;align-items:baseline;font-size:27px;color:#9aa69c}
+.hx-goal li b{display:inline-block;min-width:140px;height:34px;border-bottom:3px dashed #3c5144;color:#5d6d62;font-weight:700}
+.hx-goal .hx-jar{position:relative}
+.hx-think{position:absolute;left:1060px;top:740px;width:640px;font-size:32px;line-height:1.45;color:#8d9a90}
+.hx-think b{color:#c6cfc6;font-weight:600}
+/* 3 · la vida sigue */
+#h3 .hx-tl{top:520px}
+.on#h3 .pg{animation:hxprog 4.8s cubic-bezier(.45,0,.55,1) .9s forwards}
+.on#h3 .mk{animation:hxmk 4.8s cubic-bezier(.45,0,.55,1) .9s forwards}
+@keyframes hxprog{to{width:calc(8/9*100%)}}
+@keyframes hxmk{0%{opacity:1;left:0}100%{opacity:1;left:calc(8/9*100%)}}
+.hx-exp{position:absolute;top:380px;width:330px;margin-left:-165px;text-align:center;opacity:0}
+.hx-exp span{white-space:nowrap;display:inline-flex;align-items:center;gap:12px;padding:16px 24px;border-radius:999px;background:#f3f1ea;color:#3b2a14;font:700 25px Manrope;box-shadow:0 14px 34px rgba(0,0,0,.35)}
+.hx-exp span i{font-style:normal;display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#f0a64a;color:#2b1606;font-weight:800;font-size:24px}
+.on .hx-exp{animation:hxpop .8s cubic-bezier(.3,1.5,.5,1) forwards;animation-delay:var(--t)}
+@keyframes hxpop{0%{opacity:0;transform:translateY(30px) scale(.7)}100%{opacity:1;transform:none}}
+.hx-wallet{position:absolute;left:180px;top:720px}
+.hx-wallet p,.hx-vac p{font:700 20px Manrope;letter-spacing:.18em;text-transform:uppercase;color:#8d9a90;margin-bottom:22px}
+.hx-blocks{display:flex;gap:14px}
+.hx-blocks i{display:block;width:150px;height:96px;border-radius:20px;background:linear-gradient(160deg,#7d9a80,#4f6b53);box-shadow:inset 0 0 0 2px rgba(255,255,255,.08)}
+.hx-blocks i::after{content:'$';display:block;text-align:center;line-height:96px;font:800 38px Manrope;color:rgba(255,255,255,.5)}
+.on .hx-blocks i.go{animation:hxtake .9s var(--ease) forwards;animation-delay:var(--t)}
+@keyframes hxtake{0%{opacity:1;transform:none}35%{opacity:1;transform:translateY(-26px) scale(1.05)}100%{opacity:.14;transform:none;filter:grayscale(1)}}
+.hx-vac{position:absolute;left:1430px;top:690px;text-align:center}
+.hx-vac .hx-jar{position:relative;margin:0 auto}
+.hx-say{position:absolute;left:180px;top:140px;font-size:96px;line-height:1.05;color:#f4f2ea}
+/* 4 · llegó la fecha */
+#h4 .hx-tl{top:360px}
+#h4 .pg{width:100%}
+.hx-opt{position:absolute;width:440px;padding:30px 34px;border-radius:28px;background:linear-gradient(160deg,#1a2b22,#111d17);border:1px solid #2c4034;font-size:30px;line-height:1.3;font-weight:600;color:#e3e7df;opacity:0;transform:scale(.85)}
+.hx-opt small{display:block;font:700 18px Manrope;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin-bottom:10px}
+.on .hx-opt{animation:hxopt .9s cubic-bezier(.3,1.4,.5,1) forwards;animation-delay:var(--t)}
+@keyframes hxopt{to{opacity:1;transform:none}}
+.hx-q{position:absolute;font:800 64px Manrope;color:var(--amber);opacity:0}
+.on .hx-q{animation:hxpop .7s cubic-bezier(.3,1.6,.5,1) forwards;animation-delay:var(--t)}
+/* 5 · el verdadero problema */
+.hx-dim{position:absolute;inset:0;background:#020403;opacity:0;transition:opacity 1.4s ease}
+.on .hx-dim{opacity:.72}
+#h5 .hx-tl{top:900px;opacity:.55}
+.hx-l1,.hx-l2,.hx-l3{position:absolute;left:0;right:0;text-align:center}
+.hx-l1{top:200px;font-size:58px;font-weight:300;color:#9aa69c}
+.hx-l2{top:330px;font-size:150px;line-height:1;color:#f4f2ea}
+.hx-l3{top:690px;font:800 54px Manrope;letter-spacing:-.01em}
+.hx-l3 span{display:inline-block;margin:0 16px;opacity:0;transform:translateY(24px);transition:opacity .8s var(--ease),transform .9s var(--ease);transition-delay:var(--t)}
+.on .hx-l3 span{opacity:1;transform:none}
+#h5 .hx-jar{left:1665px;top:590px;transform:scale(.7);transform-origin:bottom center}
+/* 6 · la solución */
+.hx-logo{position:absolute;left:180px;top:150px;display:flex;align-items:center;gap:28px;font-size:120px;font-weight:800;letter-spacing:-.04em;color:var(--dark-txt)}
+.hx-logo .bars{gap:14px}.hx-logo .bars i{width:44px;height:96px;border-radius:20px;transform:scaleY(0);transform-origin:bottom;transition:transform 1.1s cubic-bezier(.3,1.5,.5,1)}
+.hx-logo .bars i:first-child{background:#2f4a35;transition-delay:.9s}.hx-logo .bars i:last-child{background:var(--sage);transition-delay:1.05s}
+.on .hx-logo .bars i{transform:scaleY(1)}
+.hx-prom{position:absolute;left:180px;top:330px;width:1150px;font-size:60px;line-height:1.15;color:#2f4a35}
+.hx-flow{position:absolute;left:180px;top:600px;display:flex;align-items:center;gap:26px}
+.hx-card{width:340px;min-height:220px;display:flex;flex-direction:column;justify-content:center;padding:32px 34px;border-radius:30px;background:#fff;box-shadow:0 24px 50px rgba(60,70,50,.12);opacity:0;transform:translateY(40px);transition:opacity .8s var(--ease),transform 1s var(--ease);transition-delay:var(--t)}
+.on .hx-card{opacity:1;transform:none}
+.hx-card small{display:block;font:700 17px Manrope;letter-spacing:.18em;text-transform:uppercase;color:#7a857c;margin-bottom:12px}
+.hx-card b{display:block;font-size:40px;line-height:1.1;letter-spacing:-.02em;color:var(--dark-txt)}
+.hx-card.hx-rule{background:#2f4a35}.hx-card.hx-rule small{color:#cfe0c8}.hx-card.hx-rule b{color:#fff}
+.hx-arrow{width:46px;height:46px;opacity:0;transition:opacity .6s;transition-delay:var(--t)}
+.on .hx-arrow{opacity:1}
+.hx-ej{position:absolute;left:180px;top:890px;font-size:22px;color:#7a857c;opacity:0;transition:opacity .8s 3.6s}
+.on .hx-ej{opacity:1}
+#h6 .hx-jar{left:1470px;top:300px;width:270px;height:400px}
+#h6 .hx-jar .lid{left:44px;right:44px;height:30px;background:#4f6b53}
+#h6 .hx-jar .bd{top:36px;border-color:#4f6b53;border-width:6px;border-radius:40px 40px 64px 64px;background:#fbfaf6}
+#h6 .hx-jar .slot{background:#f3f1ea}
+#h6 .hx-jar small{color:#7a857c;bottom:-56px}
+.hx-layers{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column-reverse}
+.hx-layers i{display:block;height:34px;border-top:2px solid rgba(255,255,255,.7);transform:scaleY(0);transform-origin:bottom;transition:transform .55s cubic-bezier(.3,1.4,.5,1);transition-delay:calc(3.2s + var(--i)*.28s)}
+.on .hx-layers i{transform:none}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -345,13 +471,78 @@ h2.t .serif{font-weight:400;letter-spacing:-.01em}
   <div id="light"></div>
   <div id="spot"></div>
 
-  <!-- 1 · Franco: historia -->
-  <section class="slide" id="s1" data-theme="dark">
+  <!-- HISTORIA (Franco) · 1 · la idea -->
+  <section class="slide hx" id="h1" data-theme="dark">
     <div class="corner">SeparApp · Grupo 9</div>
-    <div class="months" aria-hidden="true">
-      <span style="--i:0">ene</span><span style="--i:1">feb</span><span style="--i:2">mar</span><span style="--i:3">abr</span><span style="--i:4">may</span><span style="--i:5">jun</span><span style="--i:6" class="hit">jul</span><span style="--i:7">ago</span><span style="--i:8">sep</span><span style="--i:9">oct</span><span style="--i:10">nov</span><span style="--i:11">dic</span>
+    <div class="hx-person bob" data-mood="happy" style="left:200px;top:470px;--d:.1s"></div>
+    <span class="hx-dot" style="left:470px;top:470px;width:22px;height:22px;transition-delay:.55s"></span>
+    <span class="hx-dot" style="left:505px;top:405px;width:34px;height:34px;transition-delay:.75s"></span>
+    <span class="hx-dot" style="left:555px;top:335px;width:48px;height:48px;transition-delay:.95s"></span>
+    <div class="hx-cloud"><svg viewBox="0 0 600 330"><g fill="#f3f1ea"><circle cx="150" cy="190" r="115"/><circle cx="290" cy="130" r="125"/><circle cx="440" cy="160" r="115"/><circle cx="500" cy="225" r="90"/><circle cx="95" cy="240" r="80"/><circle cx="310" cy="230" r="100"/></g><g class="hx-ico" style="--i:0"><circle cx="160" cy="195" r="62" fill="#cfe3ec"/><g transform="translate(119 154) scale(3.4)" fill="none" stroke="#24352b" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.3c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></g></g><g class="hx-ico" style="--i:1"><circle cx="300" cy="160" r="62" fill="#f6deb0"/><g transform="translate(259 119) scale(3.4)" fill="none" stroke="#24352b" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13 8c0-2.76-2.46-5-5.5-5S2 5.24 2 8h2l1-1 1 1h4"/><path d="M13 7.14A5.82 5.82 0 0 1 16.5 6c3.04 0 5.5 2.24 5.5 5h-3l-1-1-1 1h-3"/><path d="M5.89 9.71c-2.15 2.15-2.3 5.47-.35 7.43l4.24-4.25.7-.7.71-.71 2.12-2.12c-1.95-1.96-5.27-1.8-7.42.35"/><path d="M11 15.5c.5 2.5-.17 4.5-1 6.5h4c2-5.5-.5-12-1-14"/></g></g><g class="hx-ico" style="--i:2"><circle cx="440" cy="195" r="62" fill="#f3c78f"/><g transform="translate(399 154) scale(3.4)" fill="none" stroke="#24352b" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2"/><path d="M8 18V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v14"/><path d="M10 20h4"/><circle cx="16" cy="20" r="2"/><circle cx="8" cy="20" r="2"/></g></g></svg></div>
+    <div class="hx-idea">
+      <p class="hx-big serif it a blur" style="--d:2.2s">“Este año sí me voy de vacaciones.”</p>
+      <p class="hx-sub a up" style="--d:3s">Voy a empezar a ahorrar.</p>
     </div>
-    <p class="storyline serif it a blur" style="--d:1.6s">Todos lo vimos venir.</p>
+  </section>
+
+  <!-- HISTORIA · 2 · el plan que queda en la cabeza -->
+  <section class="slide hx" id="h2" data-theme="dark">
+    <div class="hx-head">
+      <p class="hx-big serif it a blur" style="--d:.2s">Faltan varios meses. Hay tiempo.</p>
+      <p class="hx-sub a up" style="--d:2.4s">“Después veo los precios y empiezo.”</p>
+    </div>
+    <div class="hx-tl"  style="--d:.6s;top:520px"><div class="ln"></div><div class="pg"></div><div class="mk"></div><span class="hx-m now" style="--i:0;left:calc(0/9*100%)"><em>Hoy</em><i></i><b>mar</b></span><span class="hx-m" style="--i:1;left:calc(1/9*100%)"><i></i><b>abr</b></span><span class="hx-m" style="--i:2;left:calc(2/9*100%)"><i></i><b>may</b></span><span class="hx-m" style="--i:3;left:calc(3/9*100%)"><i></i><b>jun</b></span><span class="hx-m" style="--i:4;left:calc(4/9*100%)"><i></i><b>jul</b></span><span class="hx-m" style="--i:5;left:calc(5/9*100%)"><i></i><b>ago</b></span><span class="hx-m" style="--i:6;left:calc(6/9*100%)"><i></i><b>sep</b></span><span class="hx-m" style="--i:7;left:calc(7/9*100%)"><i></i><b>oct</b></span><span class="hx-m" style="--i:8;left:calc(8/9*100%)"><i></i><b>nov</b></span><span class="hx-m" style="--i:9;left:calc(9/9*100%)"><i></i><b>dic</b></span></div>
+    <div class="hx-goal a up" style="--d:1.4s">
+      <div class="hx-jar" style="--lv:0%" style="--lv:0%"><div class="lid"></div><div class="bd"><div class="lv"></div></div><div class="slot"></div><small></small></div>
+      <div><h4>Vacaciones</h4><ul><li>¿Cuánto?<b></b></li><li>¿Para cuándo?<b></b></li><li>¿Por mes?<b></b></li></ul></div>
+    </div>
+    <p class="hx-think a up" style="--d:3.2s">La intención está.<br><b>Lo que no hay es un monto, una fecha ni una cuota.</b></p>
+  </section>
+
+  <!-- HISTORIA · 3 · el tiempo empieza a pasar -->
+  <section class="slide hx" id="h3" data-theme="dark">
+    <p class="hx-say serif it a blur" style="--d:.1s">Mientras tanto, la vida siguió pasando.</p>
+    <div class="hx-exp" style="left:calc(180px + 1/9*1560px);--t:1.4s"><span><i>−</i>Service del auto</span></div><div class="hx-exp" style="left:calc(180px + 3/9*1560px);--t:2.6s"><span><i>−</i>Renovar la compu</span></div><div class="hx-exp" style="left:calc(180px + 5/9*1560px);--t:3.8s"><span><i>−</i>Se rompió el celular</span></div><div class="hx-exp" style="left:calc(180px + 7/9*1560px);--t:5.0s"><span><i>−</i>Cambiar la heladera</span></div>
+    <div class="hx-tl" style="--d:.2s"><div class="ln"></div><div class="pg"></div><div class="mk"></div><span class="hx-m now" style="--i:0;left:calc(0/9*100%)"><i></i><b>mar</b></span><span class="hx-m" style="--i:1;left:calc(1/9*100%)"><i></i><b>abr</b></span><span class="hx-m" style="--i:2;left:calc(2/9*100%)"><i></i><b>may</b></span><span class="hx-m" style="--i:3;left:calc(3/9*100%)"><i></i><b>jun</b></span><span class="hx-m" style="--i:4;left:calc(4/9*100%)"><i></i><b>jul</b></span><span class="hx-m" style="--i:5;left:calc(5/9*100%)"><i></i><b>ago</b></span><span class="hx-m" style="--i:6;left:calc(6/9*100%)"><i></i><b>sep</b></span><span class="hx-m" style="--i:7;left:calc(7/9*100%)"><i></i><b>oct</b></span><span class="hx-m" style="--i:8;left:calc(8/9*100%)"><i></i><b>nov</b></span><span class="hx-m goal" style="--i:9;left:calc(9/9*100%)"><i></i><b>dic</b></span></div>
+    <div class="hx-wallet a up" style="--d:.5s"><p>La plata de cada mes</p><div class="hx-blocks"><i class="go" style="--t:1.6s"></i><i class="go" style="--t:2.9s"></i><i class="go" style="--t:4.0s"></i><i class="go" style="--t:5.2s"></i><i></i></div></div>
+    <div class="hx-vac a up" style="--d:.7s"><p>&nbsp;</p><div class="hx-jar" style="--lv:5%"><div class="lid"></div><div class="bd"><div class="lv"></div></div><div class="slot"></div><small>Vacaciones</small></div></div>
+  </section>
+
+  <!-- HISTORIA · 4 · llegó el viaje -->
+  <section class="slide hx" id="h4" data-theme="dark">
+    <p class="hx-say serif it a blur" style="--d:.2s">Llegó la fecha. <span class="amber">La plata no.</span></p>
+    <div class="hx-tl" style="--d:.1s"><div class="ln"></div><div class="pg"></div><div class="mk"></div><span class="hx-m" style="--i:0;left:calc(0/9*100%)"><i></i><b>mar</b></span><span class="hx-m" style="--i:1;left:calc(1/9*100%)"><i></i><b>abr</b></span><span class="hx-m" style="--i:2;left:calc(2/9*100%)"><i></i><b>may</b></span><span class="hx-m" style="--i:3;left:calc(3/9*100%)"><i></i><b>jun</b></span><span class="hx-m" style="--i:4;left:calc(4/9*100%)"><i></i><b>jul</b></span><span class="hx-m" style="--i:5;left:calc(5/9*100%)"><i></i><b>ago</b></span><span class="hx-m" style="--i:6;left:calc(6/9*100%)"><i></i><b>sep</b></span><span class="hx-m" style="--i:7;left:calc(7/9*100%)"><i></i><b>oct</b></span><span class="hx-m" style="--i:8;left:calc(8/9*100%)"><i></i><b>nov</b></span><span class="hx-m goal" style="--i:9;left:calc(9/9*100%)"><em>Vacaciones</em><i></i><b>dic</b></span></div>
+    <div class="hx-person" data-mood="worried" style="left:780px;top:500px;width:320px;--d:.5s"></div>
+    <span class="hx-q" style="left:1040px;top:500px;--t:1.2s">?</span>
+    <span class="hx-q" style="left:1095px;top:560px;font-size:44px;--t:1.4s">?</span>
+    <div class="hx-opt" style="left:200px;top:600px;--t:1.8s"><small>Opción 1</small>Usar ahorros que eran para otra cosa</div>
+    <div class="hx-opt" style="left:1260px;top:540px;--t:2.3s"><small>Opción 2</small>Pagarlo en cuotas</div>
+    <div class="hx-opt" style="left:1260px;top:780px;--t:2.8s"><small>Opción 3</small>Pedir un préstamo o usar la tarjeta</div>
+  </section>
+
+  <!-- HISTORIA · 5 · el verdadero problema -->
+  <section class="slide hx" id="h5" data-theme="dark">
+    <div class="hx-dim"></div>
+    <p class="hx-l1 a blur" style="--d:.4s">Las vacaciones nunca fueron un imprevisto.</p>
+    <p class="hx-l2 serif it a zoomout" style="--d:2.2s">Lo que faltó fue<br>convertirlas en un <span class="amber">plan</span>.</p>
+    <p class="hx-l3"><span style="--t:4s">Cuánto separar.</span><span style="--t:4.5s">Cada cuánto.</span><span class="amber" style="--t:5s">Desde hoy.</span></p>
+    <div class="hx-tl" style="--d:.2s"><div class="ln"></div><div class="pg"></div><div class="mk"></div><span class="hx-m" style="--i:0;left:calc(0/9*100%)"><i></i><b>mar</b></span><span class="hx-m" style="--i:1;left:calc(1/9*100%)"><i></i><b>abr</b></span><span class="hx-m" style="--i:2;left:calc(2/9*100%)"><i></i><b>may</b></span><span class="hx-m" style="--i:3;left:calc(3/9*100%)"><i></i><b>jun</b></span><span class="hx-m" style="--i:4;left:calc(4/9*100%)"><i></i><b>jul</b></span><span class="hx-m" style="--i:5;left:calc(5/9*100%)"><i></i><b>ago</b></span><span class="hx-m" style="--i:6;left:calc(6/9*100%)"><i></i><b>sep</b></span><span class="hx-m" style="--i:7;left:calc(7/9*100%)"><i></i><b>oct</b></span><span class="hx-m" style="--i:8;left:calc(8/9*100%)"><i></i><b>nov</b></span><span class="hx-m goal" style="--i:9;left:calc(9/9*100%)"><em>Vacaciones</em><i></i><b>dic</b></span></div>
+    <div class="hx-jar" style="--lv:0%"><div class="lid"></div><div class="bd"><div class="lv"></div></div><div class="slot"></div><small></small></div>
+  </section>
+
+  <!-- HISTORIA · 6 · la solución -->
+  <section class="slide light hx" id="h6" data-theme="light">
+    <div class="hx-logo"><span class="bars"><i></i><i></i></span><span class="a blur" style="--d:.8s">SeparApp</span></div>
+    <p class="hx-prom serif it a up" style="--d:1.4s">Saber cuánto separar hoy para llegar a tu gasto tranquilo.</p>
+    <div class="hx-flow">
+      <div class="hx-card" style="--t:2s"><small>Tu gasto</small><b>Vacaciones</b></div>
+      <svg class="hx-arrow" style="--t:2.3s" viewBox="0 0 24 24" fill="none" stroke="#4f6b53" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      <div class="hx-card" style="--t:2.4s"><small>Monto + fecha</small><b>$1.800.000 para diciembre</b></div>
+      <svg class="hx-arrow" style="--t:2.7s" viewBox="0 0 24 24" fill="none" stroke="#4f6b53" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      <div class="hx-card hx-rule" style="--t:2.8s"><small>Tu regla</small><b>Separá $180.000 por mes</b></div>
+    </div>
+    <p class="hx-ej">Montos de ejemplo.</p>
+    <div class="hx-jar" style="--lv:0%"><div class="lid"></div><div class="bd"><div class="hx-layers"><i style="--i:0;background:#1f3a2a"></i><i style="--i:1;background:#2f5a3d"></i><i style="--i:2;background:#3f6c4b"></i><i style="--i:3;background:#4f7f5a"></i><i style="--i:4;background:#668c6c"></i><i style="--i:5;background:#7d9a80"></i><i style="--i:6;background:#c99a52"></i><i style="--i:7;background:#e0a14d"></i><i style="--i:8;background:#f0a64a"></i><i style="--i:9;background:#f3b765"></i></div></div><div class="slot"></div><small>mar → dic</small></div>
   </section>
 
   <!-- 2 · el dato -->
@@ -530,6 +721,30 @@ h2.t .serif{font-weight:400;letter-spacing:-.01em}
   var pp = document.getElementById('people'), h = '';
   for (var i = 0; i < 10; i++) h += '<div class="p' + (i < 3 ? ' lit' : '') + '" style="--i:' + i + '">' + personSvg + '</div>';
   pp.innerHTML = h;
+
+
+  // Persona de la historia (diap. 1 a 6)
+  function persona(mood){
+    var happy = mood === 'happy';
+    var eyes = happy
+      ? '<path d="M86 124q9-9 18 0M118 124q9-9 18 0" stroke="#2b1d14" stroke-width="5" fill="none" stroke-linecap="round"/>'
+      : '<circle cx="95" cy="126" r="6" fill="#2b1d14"/><circle cx="127" cy="126" r="6" fill="#2b1d14"/><path d="M82 110l22-6M140 110l-22-6" stroke="#2b1d14" stroke-width="5" stroke-linecap="round"/>';
+    var mouth = happy
+      ? '<path d="M92 144q19 20 38 0" stroke="#2b1d14" stroke-width="5" fill="#fff" stroke-linejoin="round"/>'
+      : '<path d="M97 154q14-9 28 0" stroke="#2b1d14" stroke-width="5" fill="none" stroke-linecap="round"/>';
+    var cheeks = happy ? '<circle cx="80" cy="140" r="9" fill="#f08f7a" opacity=".45"/><circle cx="142" cy="140" r="9" fill="#f08f7a" opacity=".45"/>' : '';
+    var arms = happy
+      ? '<path d="M52 230q-30-40-6-92" stroke="#e8b48f" stroke-width="24" fill="none" stroke-linecap="round"/><path d="M170 232q32-40 8-94" stroke="#e8b48f" stroke-width="24" fill="none" stroke-linecap="round"/>'
+      : '<path d="M56 228q-24 30-4 66" stroke="#e8b48f" stroke-width="24" fill="none" stroke-linecap="round"/><path d="M166 226q30-30 -6-88" stroke="#e8b48f" stroke-width="24" fill="none" stroke-linecap="round"/>';
+    return '<svg viewBox="0 0 222 330"><ellipse cx="111" cy="322" rx="92" ry="9" fill="rgba(0,0,0,.35)"/>' +
+      '<path d="M30 318c0-86 30-122 81-122s81 36 81 122z" fill="' + (happy ? '#7d9a80' : '#5f7a66') + '"/>' +
+      '<path d="M88 196l23 28 23-28" fill="none" stroke="#f3f1ea" stroke-width="6" stroke-linejoin="round" opacity=".8"/>' +
+      arms + '<rect x="98" y="160" width="26" height="36" rx="10" fill="#d9a07c"/>' +
+      '<circle cx="111" cy="120" r="54" fill="#e8b48f"/>' +
+      '<path d="M57 122c-4-50 30-68 56-68 30 0 58 20 52 68-10-24-30-34-56-32-24 2-40 12-52 32z" fill="#2b1d14"/>' +
+      cheeks + eyes + mouth + '</svg>';
+  }
+  [].forEach.call(document.querySelectorAll('.hx-person'), function(el){ el.innerHTML = persona(el.getAttribute('data-mood')); });
 
   // Títulos palabra por palabra
   [].forEach.call(document.querySelectorAll('.words'), function(el){
