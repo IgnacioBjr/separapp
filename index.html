@@ -281,6 +281,13 @@
   .tasas div + div { border-top: 1px solid var(--rule); }
   .tasas span { min-width: 0; overflow-wrap: anywhere; }
   .tasas b { white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .tasas div { align-items: center; }
+  .tasas span { flex: 1; }
+  .abrir { flex: none; border: 0; border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; font-weight: 600; background: var(--accent); color: #fff; cursor: pointer; transition: transform 160ms var(--ease-out), opacity 160ms; }
+  .abrir:active { transform: scale(.94); }
+  .aviso-abrir { position: fixed; left: 50%; bottom: 96px; z-index: 60; width: min(360px, calc(100% - 32px)); transform: translate(-50%, 16px); opacity: 0; pointer-events: none; padding: 14px 16px; border-radius: 16px; background: #1f2a24; color: #fff; font-size: 14px; line-height: 1.4; box-shadow: 0 12px 32px rgba(0,0,0,.22); transition: opacity 220ms ease, transform 320ms var(--ease-out); }
+  .aviso-abrir.ver { opacity: 1; transform: translate(-50%, 0); }
+  .aviso-abrir b { display: block; margin-bottom: 2px; }
   /* v3.7: historial de meses y dónde la guardó */
   .historial h2, .lugar h2 { margin-bottom: 2px; }
   .hist-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
@@ -1569,7 +1576,7 @@
     return Math.max(saldo - puesto, 0);
   }
   function tasas(filas) {
-    return '<div class="tasas">' + filas.map(function (f) { return '<div><span>' + esc(f[0]) + '</span><b>' + f[1] + '</b></div>'; }).join('') + '</div>';
+    return '<div class="tasas">' + filas.map(function (f) { return '<div><span>' + esc(f[0]) + '</span><b>' + f[1] + '</b><button type="button" class="abrir" data-lugar="' + esc(f[0]) + '">' + (/^d[oó]lar/i.test(f[0]) ? 'Comprar' : 'Abrir') + '</button></div>'; }).join('') + '</div>';
   }
   function filasFondos(lista) { return lista.map(function (f) { return [f.fondo.replace(/\s*-\s*clase/i, ' · clase'), pct(f.tna)]; }); }
   function recoCon(clase, tag, titulo, texto, extra) {
@@ -1699,10 +1706,23 @@
     document.body.appendChild(a); a.click(); a.remove();
   });
 
+  // Botón "Abrir": en la versión final lleva a la entidad con un link nuestro (así cobramos la comisión). Hoy sólo avisa.
+  var avisoAbrir = document.createElement('div'); avisoAbrir.className = 'aviso-abrir'; avisoAbrir.setAttribute('role', 'status'); document.body.appendChild(avisoAbrir);
+  var avisoTimer;
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.abrir'); if (!b) return;
+    var g = buscar(actual);
+    registrar('abrir', { id_gasto: g ? g.id : '', gasto: g ? g.gasto : '', lugar: b.getAttribute('data-lugar') });
+    avisoAbrir.innerHTML = '<b>Muy pronto vas a abrirlo desde acá</b>Te vamos a llevar directo a ' + esc(b.getAttribute('data-lugar')) + '. Lo abrís en la entidad: SeparApp nunca toca tu plata.';
+    avisoAbrir.classList.add('ver'); clearTimeout(avisoTimer);
+    avisoTimer = setTimeout(function () { avisoAbrir.classList.remove('ver'); }, 3200);
+  });
+
   // ---------- Arranque ----------
   registrar('apertura');
   if (perfil) { ir('inicio'); pintarInicio(); } else { cargarPerfil(); ir('perfil'); }
 })();
+
 </script>
 </body>
 </html>
